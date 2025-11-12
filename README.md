@@ -1,1 +1,0 @@
-# Local-events-platform
