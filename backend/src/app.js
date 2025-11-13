@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth.js';
 import meRouter from './routes/me.js';
+import eventRouter from './routes/events.js';
 
 const app = express();
 
@@ -14,5 +15,6 @@ app.get('/', (req, res) => res.json({ status: 'ok', time: new Date().toISOString
 // mount routers - make sure these imports resolve to Router instances
 app.use('/api/auth', authRouter);
 app.use('/api/me', meRouter);
+app.use('/api/events', eventRouter);
 
 export default app;
