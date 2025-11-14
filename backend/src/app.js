@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRouter from './routes/auth.js';
 import meRouter from './routes/me.js';
 import eventRouter from './routes/events.js';
+import rsvpRouter from './routes/rsvps.js';
 
 const app = express();
 
@@ -16,5 +17,6 @@ app.get('/', (req, res) => res.json({ status: 'ok', time: new Date().toISOString
 app.use('/api/auth', authRouter);
 app.use('/api/me', meRouter);
 app.use('/api/events', eventRouter);
+app.use('/api/events', rsvpRouter);
 
 export default app;

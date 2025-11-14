@@ -55,5 +55,59 @@ router.post('/', auth, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+// UPDATE EVENT (creator only)
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id, 10);
+    const userId = req.user.id;
+    const event = await Event.findByPk(eventId);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    if (event.creatorId !== userId) {
+      return res.status(403).json({ message: 'Not allowed to edit this event' });
+    }
+
+    const { title, description, location, date, capacity } = req.body;
+
+    // validation
+    if (title !== undefined && String(title).trim() === '') return res.status(400).json({ message: 'Title cannot be empty' });
+    if (date !== undefined && isNaN(new Date(date))) return res.status(400).json({ message: 'Invalid date' });
+    if (capacity !== undefined && Number.isNaN(Number(capacity))) return res.status(400).json({ message: 'Capacity must be a number' });
+
+    await event.update({
+      title: title !== undefined ? title : event.title,
+      description: description !== undefined ? description : event.description,
+      location: location !== undefined ? location : event.location,
+      date: date !== undefined ? new Date(date) : event.date,
+      capacity: capacity !== undefined ? parseInt(capacity, 10) : event.capacity
+    });
+
+    return res.json({ message: 'Event updated', event });
+  } catch (err) {
+    console.error('Update error:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// DELETE EVENT (creator only)
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id, 10);
+    const userId = req.user.id;
+    const event = await Event.findByPk(eventId);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    if (event.creatorId !== userId) {
+      return res.status(403).json({ message: 'Not allowed to delete this event' });
+    }
+
+    await event.destroy();
+    return res.json({ message: 'Event deleted successfully' });
+  } catch (err) {
+    console.error('Delete error:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 export default router;
