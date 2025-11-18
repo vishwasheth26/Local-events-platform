@@ -1,0 +1,75 @@
+<!-- discussion-detail.html -->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Discussion</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container" style="padding:2rem;">
+    <div id="threadCard" class="card" style="padding:1rem;"></div>
+    <h3 style="margin-top:1.25rem;">Replies</h3>
+    <div id="commentsList"></div>
+
+    <div class="card" style="padding:1rem; margin-top:1rem;">
+      <h4>Write a reply</h4>
+      <textarea id="replyText" style="width:100%; min-height:100px; padding:0.5rem;"></textarea>
+      <div style="margin-top:0.5rem;">
+        <button id="replyBtn" class="btn btn-primary">Reply</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const discussionId = params.get("discussionId");
+
+    const threadCard = document.getElementById("threadCard");
+    const commentsList = document.getElementById("commentsList");
+
+    async function loadDiscussion() {
+      try {
+        const d = await apiFetch(`/groups/discussion/${discussionId}`);
+        threadCard.innerHTML = `<h2>${d.title}</h2>
+          <div class="muted">by ${d.author?.name || 'Member'} • ${new Date(d.createdAt).toLocaleString()}</div>
+          <p style="margin-top:0.75rem;">${d.content}</p>`;
+
+        commentsList.innerHTML = (d.DiscussionComments || []).map(c => `
+          <div class="card" style="padding:0.75rem; margin-bottom:0.5rem;">
+            <div class="muted">${c.author?.name || 'Member'} • ${new Date(c.createdAt).toLocaleString()}</div>
+            <div style="margin-top:0.5rem;">${c.text}</div>
+          </div>
+        `).join('') || '<div class="muted">No replies yet.</div>';
+      } catch (err) {
+        console.error(err);
+        threadCard.innerHTML = '<div class="muted">Failed to load discussion</div>';
+      }
+    }
+
+    document.getElementById("replyBtn").addEventListener("click", async () => {
+      const text = document.getElementById("replyText").value.trim();
+      if (!text) return alert("Reply cannot be empty");
+
+      try {
+        await apiFetch(`/groups/discussion/${discussionId}/comments`, {
+          method: "POST",
+          body: JSON.stringify({ text })
+        });
+        document.getElementById("replyText").value = "";
+        loadDiscussion();
+      } catch (err) {
+        if (err.status === 401) {
+          if (confirm("Login required. Go to login?")) location.href = "login.html";
+          return;
+        }
+        alert(err.message || "Failed to post comment");
+      }
+    });
+
+    loadDiscussion();
+  </script>
+</body>
+</html>

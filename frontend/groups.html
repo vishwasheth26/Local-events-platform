@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Groups - Local events platform </title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo"><div class="logo-icon">👥</div><span>Local events platform </span></a>
+            <div class="nav-links">
+                <a href="events.html" class="nav-link">📅 Events</a>
+                <a href="groups.html" class="nav-link active">👥 Groups</a>
+                <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
+                <a href="create-event.html" class="btn btn-outline">+ Create Event</a>
+                <a href="profile.html" class="btn btn-primary">👤 Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <div style="background: linear-gradient(to br, #faf5ff, #ffffff, #eff6ff); border-bottom: 1px solid #e5e7eb; padding: 3rem 1rem;">
+        <div class="container">
+            <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">Discover groups</h1>
+            <p style="color: #6b7280; font-size: 1.125rem; margin-bottom: 2rem;">Join communities that share your passions</p>
+            <div style="max-width: 32rem;">
+                <input type="text" id="searchInput" placeholder="Search groups by name or interest..." style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid #e5e7eb; border-radius: 8px; background: white;">
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="padding: 2rem 1rem;">
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+            <select id="categoryFilter" style="flex: 1; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 8px; background: white;">
+                <option value="all">All Categories</option>
+            </select>
+            <select id="sortFilter" style="flex: 1; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 8px; background: white;">
+                <option value="members">Most members</option>
+                <option value="events">Most events</option>
+                <option value="newest">Newest</option>
+            </select>
+        </div>
+
+        <p style="margin-bottom: 1.5rem; color: #6b7280;"><strong id="groupCount">0</strong> groups found</p>
+        <div class="grid grid-3" id="groupsGrid"></div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const searchInput = document.getElementById('searchInput');
+        const groupsGrid = document.getElementById('groupsGrid');
+        const groupCount = document.getElementById('groupCount');
+
+        categories.forEach(cat => {
+            categoryFilter.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+        });
+
+        function renderGroups() {
+            let filtered = groups.filter(group => {
+                const matchesCategory = categoryFilter.value === 'all' || group.category === categoryFilter.value;
+                const matchesSearch = group.name.toLowerCase().includes(searchInput.value.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            filtered.sort((a, b) => {
+                if (sortFilter.value === 'members') return b.members - a.members;
+                if (sortFilter.value === 'events') return b.events - a.events;
+                return 0;
+            });
+
+            groupCount.textContent = filtered.length;
+            groupsGrid.innerHTML = filtered.map(group => `
+                <a href="group-detail.html?id=${group.id}" class="card">
+                    <div style="position: relative;">
+                        <img src="${group.image}" class="card-image">
+                        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);"></div>
+                        <div style="position: absolute; bottom: 1rem; left: 1rem; right: 1rem;">
+                            <div style="color: rgba(255,255,255,0.9); font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">${group.category}</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${group.name}</h3>
+                        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">${group.description}</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; color: #6b7280; font-size: 0.875rem;">
+                            <div class="info-item">👥 ${group.members.toLocaleString()} members</div>
+                            <div class="info-item">📈 ${group.events} events hosted</div>
+                            <div class="info-item">📍 ${group.location}</div>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        categoryFilter.addEventListener('change', renderGroups);
+        sortFilter.addEventListener('change', renderGroups);
+        searchInput.addEventListener('input', renderGroups);
+
+        renderGroups();
+    </script>
+</body>
+</html>
