@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Events Platform - Connect with people who share your interests</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Extra styling for updated About section */
+        .about-box {
+            max-width: 1100px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+        }
+
+        .about-icon {
+            font-size: 4rem;
+            background: linear-gradient(to right, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .about-text h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .about-points {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            color: #4b5563;
+        }
+
+        .about-points span {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">👥</div>
+                <span>Local Events</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="events.html" class="nav-link">📅 Events</a>
+                <a href="groups.html" class="nav-link">👥 Groups</a>
+                <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
+
+                <!-- Create Event Button – always blocked -->
+                <a id="createEventBtn" class="btn btn-outline">+ Create Event</a>
+
+                <a id="authBtn" class="btn btn-primary">👤 Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Connect with people who <span class="gradient-text">share your interests</span></h1>
+            <p>Discover events, join groups, and meet amazing people in your community</p>
+
+            <!-- SEARCH BOX -->
+            <div class="search-box">
+                <form class="search-form">
+                    <div class="input-group">
+                        <span class="input-icon">🔍</span>
+                        <input type="text" placeholder="Search for events, groups, or activities...">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-icon">📍</span>
+                        <input type="text" placeholder="Location">
+                    </div>
+                    <button class="btn btn-primary">Search</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ⭐ NEW ABOUT SECTION -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">About Local Events Platform</h2>
+                <p class="section-subtitle">A modern community-driven experience</p>
+            </div>
+
+            <div class="about-box">
+                <div>
+                    <div class="about-icon">🌈</div>
+                    <div class="about-text">
+                        <h3>Discover, Connect & Experience Together</h3>
+                        <p style="color:#4b5563; font-size:1.1rem;">
+                            Local Events Platform is designed to bring communities together. Whether you're exploring new hobbies, attending workshops, joining fitness sessions, or participating in cultural meetups — we help you connect with like-minded people around you.
+                        </p>
+
+                        <div class="about-points">
+                            <span>✨ Find events based on your interests</span>
+                            <span>💬 Join groups & build real connections</span>
+                            <span>📍 Explore activities happening near you</span>
+                            <span>🎉 Experience a vibrant local community</span>
+                        </div>
+                    </div>
+                </div>
+
+                <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=800"
+                     style="width:100%; border-radius:16px; object-fit:cover;">
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Explore by category</h2>
+                <p class="section-subtitle">Find events that match your passions</p>
+            </div>
+            <div class="grid grid-4" id="categoriesGrid"></div>
+        </div>
+    </section>
+
+    <!-- UPCOMING EVENTS -->
+    <section class="section bg-gray">
+        <div class="container">
+            <div class="flex items-center justify-between mb-4">
+                <div><h2 class="section-title">Upcoming events</h2></div>
+                <a href="events.html" class="btn btn-outline">View all →</a>
+            </div>
+            <div class="grid grid-3" id="featuredEvents"></div>
+        </div>
+    </section>
+
+    <!-- POPULAR GROUPS -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="section-title">Popular groups</h2>
+                <a href="groups.html" class="btn btn-outline">View all →</a>
+            </div>
+            <div class="grid grid-4" id="popularGroups"></div>
+        </div>
+    </section>
+
+    <!-- FOOTER CTA with stronger gradient -->
+    <section class="section"
+        style="background: linear-gradient(135deg, #2563eb, #7c3aed, #ec4899, #f59e0b); 
+               color: white; text-align:center; padding:5rem 1rem;">
+        <div class="container">
+            <h2 style="font-size:3rem; font-weight:bold; margin-bottom:1rem;">
+                Start your journey with us
+            </h2>
+            <p style="font-size:1.25rem; margin-bottom:2rem;">Discover new experiences every day</p>
+
+            <a id="startEventBtn"
+               class="btn"
+               style="background:white; color:#7c3aed; padding:0.75rem 2rem; font-size:1rem;">
+                🚀 Start an Event
+            </a>
+        </div>
+    </section>
+
+    <script src="api.js"></script>
+<script>
+/* ---------------------------
+   1. HANDLE LOGGED-IN USER UI
+---------------------------- */
+function setupAuthUI() {
+    const authBtn = document.getElementById("authBtn");
+    const createBtn = document.getElementById("createEventBtn");
+    const startBtn = document.getElementById("startEventBtn");
+
+    const user = JSON.parse(localStorage.getItem("localUser") || "null");
+
+    if (user) {
+        // Logged-in UI
+        authBtn.textContent = `👤 ${user.name}`;
+        authBtn.href = "profile.html";
+
+        createBtn.onclick = () => (window.location.href = "create-event.html");
+        startBtn.onclick = () => (window.location.href = "create-event.html");
+    } else {
+        // Not logged-in UI
+        authBtn.textContent = "👤 Login";
+        authBtn.href = "login.html";
+
+        createBtn.onclick = () => alert("Login required to create an event.");
+        startBtn.onclick = () => alert("Login required to create an event.");
+    }
+}
+
+setupAuthUI();
+
+
+/* ---------------------------
+   2. LOAD CATEGORIES
+---------------------------- */
+const defaultCategories = [
+    { name: "Tech", icon: "💻", color: "#2563eb" },
+    { name: "Music", icon: "🎵", color: "#7c3aed" },
+    { name: "Fitness", icon: "💪", color: "#16a34a" },
+    { name: "Art", icon: "🎨", color: "#f59e0b" },
+    { name: "Study", icon: "📚", color: "#ec4899" },
+    { name: "Career", icon: "💼", color: "#0ea5e9" }
+];
+
+function renderCategories() {
+    const grid = document.getElementById("categoriesGrid");
+    grid.innerHTML = "";
+
+    defaultCategories.forEach(cat => {
+        grid.innerHTML += `
+            <div class="category-card" onclick="window.location.href='events.html'">
+                <div class="category-icon" style="background: ${cat.color}20;">
+                    <span style="font-size:2rem;">${cat.icon}</span>
+                </div>
+                <h3>${cat.name}</h3>
+            </div>
+        `;
+    });
+}
+
+renderCategories();
+
+
+/* ---------------------------
+   3. LOAD FEATURED EVENTS FROM BACKEND
+---------------------------- */
+async function loadEvents() {
+    const grid = document.getElementById("featuredEvents");
+    grid.innerHTML = `<div class="muted">Loading events...</div>`;
+
+    try {
+        const res = await apiFetch("/events");
+        const events = Array.isArray(res) ? res : res.events;
+
+        grid.innerHTML = "";
+        events.slice(0, 6).forEach(event => {
+            grid.innerHTML += `
+                <div class="card" onclick="window.location.href='event-detail.html?id=${event.id}'">
+                    <div style="position:relative;">
+                        <img src="${event.image || 'https://via.placeholder.com/400'}" class="card-image">
+                        <span class="badge">${event.price || "Free"}</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-category">${event.category || "General"}</div>
+                        <h3 class="card-title">${event.title}</h3>
+                        <div class="card-info">
+                            <div class="info-item">📅 ${new Date(event.date).toLocaleDateString()}</div>
+                            <div class="info-item">📍 ${event.location}</div>
+                            <div class="info-item">👥 ${event.attendees || 0} attending</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<div class="muted">Failed to load events</div>`;
+    }
+}
+
+loadEvents();
+
+
+/* ---------------------------
+   4. POPULAR GROUPS (COMING SOON)
+---------------------------- */
+function renderGroupsPlaceholder() {
+    document.getElementById("popularGroups").innerHTML = `
+        <div class="muted" style="grid-column: span 4; text-align:center;">
+            Groups system coming soon…
+        </div>
+    `;
+}
+
+renderGroupsPlaceholder();
+</script>
+</body>
+</html>

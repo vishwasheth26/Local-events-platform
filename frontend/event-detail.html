@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details - Local events platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo"><div class="logo-icon">👥</div><span>Local events platform</span></a>
+            <div class="nav-links">
+                <a href="events.html" class="nav-link">📅 Events</a>
+                <a href="groups.html" class="nav-link">👥 Groups</a>
+                <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
+                <a href="profile.html" class="btn btn-primary">👤 Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <div style="position: relative; height: 400px; background: #111;">
+        <img id="eventImage" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);"></div>
+        <button onclick="history.back()" class="btn" style="position: absolute; top: 1rem; left: 1rem; background: white; color: #111;">← Back</button>
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem;">
+            <div class="container">
+                <span id="eventCategory" style="background: white; color: #111; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600;"></span>
+                <h1 id="eventTitle" style="font-size: 3rem; font-weight: bold; color: white; margin: 1rem 0;"></h1>
+                <p style="color: rgba(255,255,255,0.9);">Hosted by <span id="eventGroup"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="padding: 2rem 1rem;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <div>
+                <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1.5rem;">Event Details</h2>
+                    <div id="eventDetails"></div>
+                </div>
+
+                <div class="card" style="padding: 2rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">About this event</h2>
+                    <p id="eventDescription" style="color: #374151; line-height: 1.8;"></p>
+                </div>
+            </div>
+
+            <div>
+                <div class="card" style="padding: 1.5rem; margin-bottom: 1rem;">
+                    <div style="font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem;" id="eventPrice"></div>
+                    <button id="rsvpBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;" onclick="toggleRSVP()">Attend</button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-outline" style="flex: 1;" onclick="toggleSave()">❤️</button>
+                        <button class="btn btn-outline" style="flex: 1;" onclick="shareEvent()">🔗</button>
+                    </div>
+                </div>
+
+                <!-- EVENT CHAT -->
+<div class="card" id="eventChatBox" style="margin-top: 1.5rem; padding: 1rem;">
+    <h3 style="margin-bottom: 1rem;">Event Chat 💬</h3>
+
+    <div id="chatMessages" 
+         style="height: 260px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 1rem; border-radius: 10px; display:flex; flex-direction: column; gap: 0.75rem;">
+        <div class="muted">Loading chat...</div>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+        <input id="chatInput" 
+               placeholder="Write a message..." 
+               style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #ccc; border-radius: 8px;">
+        <button id="sendChatBtn" class="btn btn-primary">Send</button>
+    </div>
+</div>
+                <!-- END EVENT CHAT -->     
+
+                <div class="card" style="padding: 1.5rem;">
+                    <h3 style="font-weight: bold; margin-bottom: 1rem;">Attendees</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Attending</span>
+                        <strong id="attendeeCount"></strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span>Capacity</span>
+                        <strong id="maxAttendees"></strong>
+                    </div>
+                    <div style="height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden;">
+                        <div id="attendeeBar" style="height: 100%; background: linear-gradient(to right, #2563eb, #7c3aed);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" style="display: none;"></div>
+
+    <script src="api.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get("id");
+
+        let eventData = null;
+
+        /* ================================
+        1. LOAD EVENT FROM BACKEND
+        ================================ */
+        async function loadEvent() {
+            try {
+                const res = await apiFetch(`/events/${eventId}`);
+                eventData = res.event || res; // support both formats
+
+                renderEvent(eventData);
+            } catch (err) {
+                console.error(err);
+                alert("Failed to load event");
+            }
+        }
+
+        /* ================================
+        2. RENDER EVENT DETAILS
+        ================================ */
+        function renderEvent(event) {
+            document.getElementById("eventImage").src = event.image || "https://via.placeholder.com/600";
+            document.getElementById("eventCategory").textContent = event.category;
+            document.getElementById("eventTitle").textContent = event.title;
+            document.getElementById("eventGroup").textContent = event.groupName || "Unknown host";
+
+            document.getElementById("eventDescription").textContent = event.description;
+            document.getElementById("eventPrice").textContent = event.price || "Free";
+
+            document.getElementById("attendeeCount").textContent = event.attendees || 0;
+            document.getElementById("maxAttendees").textContent = event.maxAttendees || 0;
+
+            let percent = (event.attendees / event.maxAttendees) * 100;
+            document.getElementById("attendeeBar").style.width = percent + "%";
+
+            // Event details box
+            document.getElementById("eventDetails").innerHTML = `
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 1.5rem;">📅</span>
+                    </div>
+                    <div>
+                        <p style="font-weight: 600;">${new Date(event.date).toLocaleDateString()}</p>
+                        <p style="color: #6b7280;">${event.time || ""}</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; background: #f0fdf4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 1.5rem;">📍</span>
+                    </div>
+                    <div>
+                        <p style="font-weight: 600;">${event.location}</p>
+                        <p style="color: #6b7280;">${event.isOnline ? "Online event" : "In-person event"}</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background: #faf5ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 1.5rem;">👥</span>
+                    </div>
+                    <div>
+                        <p style="font-weight: 600;">${event.attendees} attending</p>
+                        <p style="color: #6b7280;">${event.maxAttendees - event.attendees} spots left</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ================================
+        3. RSVP BUTTON (POST to backend)
+        ================================ */
+        async function toggleRSVP() {
+            try {
+                const res = await apiFetch("/rsvp", {
+                    method: "POST",
+                    body: JSON.stringify({ eventId })
+                });
+
+                showToast(res.message || "RSVP updated!");
+
+                // Refresh event data after RSVP
+                loadEvent();
+            } catch (err) {
+                if (err.status === 401) {
+                    alert("Login required!");
+                    window.location.href = "login.html";
+                } else {
+                    alert("RSVP failed");
+                }
+            }
+        }
+
+        /* ================================
+        4. OTHER BUTTONS
+        ================================ */
+        function toggleSave() {
+            showToast("Event saved!");
+        }
+
+        function shareEvent() {
+            navigator.clipboard.writeText(window.location.href);
+            showToast("Link copied!");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = "toast";
+            toast.style.display = "block";
+            setTimeout(() => (toast.style.display = "none"), 3000);
+        }
+
+        /* ================================
+        INIT PAGE
+        ================================ */
+        loadEvent();
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+(async function () {
+    // logged-in user
+    const localUser = JSON.parse(localStorage.getItem("localUser") || "null");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get("id");
+
+    if (!eventId) return;
+
+    const chatBox = document.getElementById("chatMessages");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendChatBtn");
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, t => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" }[t]));
+    }
+
+    function appendMessage(msg) {
+        const me = localUser && msg.userId === localUser.id;
+        const div = document.createElement("div");
+        div.style.display = "flex";
+        div.style.justifyContent = me ? "flex-end" : "flex-start";
+
+        div.innerHTML = `
+            <div style="
+                max-width: 80%;
+                padding: 0.6rem 0.8rem;
+                border-radius: 10px;
+                background: ${me ? "#2563eb" : "#f3f4f6"};
+                color: ${me ? "white" : "black"};
+            ">
+                <div style="font-size: 0.8rem; opacity: 0.8;">
+                    ${msg.user?.name || "User"}
+                </div>
+                <div>${escapeHtml(msg.text)}</div>
+                <div style="font-size: 0.75rem; opacity: 0.5; margin-top: 4px;">
+                    ${new Date(msg.createdAt).toLocaleString()}
+                </div>
+            </div>
+        `;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Load chat history
+    async function loadChat() {
+        try {
+            const messages = await apiFetch(`/messages/event/${eventId}`);
+            chatBox.innerHTML = "";
+            messages.forEach(m => appendMessage(m));
+        } catch (err) {
+            console.error(err);
+            chatBox.innerHTML = "<div class='muted'>Failed to load chat</div>";
+        }
+    }
+
+    await loadChat();
+
+    // Connect socket.io
+    const socket = io();
+
+    socket.emit("joinRoom", eventId);
+
+    socket.on("receiveMessage", (msg) => {
+        appendMessage(msg);
+    });
+
+    async function sendMessage() {
+        if (!localUser) {
+            alert("You must log in to send messages.");
+            return window.location.href = "login.html";
+        }
+
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        // Socket send
+        socket.emit("sendMessage", {
+            userId: localUser.id,
+            eventId: parseInt(eventId),
+            text
+        });
+
+        chatInput.value = "";
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+})();
+</script>
+</body>
+</html>
