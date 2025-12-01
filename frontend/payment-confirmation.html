@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmation</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .confirm-container {
+            max-width: 600px;
+            margin: 4rem auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #10b981;
+        }
+        .confirm-title {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .confirm-method {
+            margin-top: 1rem;
+            color: #374151;
+            font-size: 1.1rem;
+        }
+        .btn-home {
+            margin-top: 2rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">👥</div>
+                <span>Evinza</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="confirm-container">
+        <div class="success-icon">✅</div>
+        <h2 class="confirm-title">Payment Successful!</h2>
+
+        <p class="confirm-method">
+            Payment method: <span id="method" style="font-weight:bold"></span>
+        </p>
+
+        <p style="margin-top:1rem;color:#6b7280;">
+            You have successfully joined the event.  
+            A confirmation email has been sent to your registered address.
+        </p>
+
+        <a href="index.html" class="btn btn-primary btn-home">Go to Home</a>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const method = params.get("method");
+        document.getElementById("method").innerText = method || "N/A";
+    </script>
+
+</body>
+</html>

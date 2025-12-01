@@ -1,0 +1,466 @@
+;<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Details - Evinza</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Header Banner */
+        .group-hero {
+            height: 320px;
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .group-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .group-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.1));
+        }
+        .group-hero-content {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            color: white;
+        }
+        .group-hero-content h1 {
+            font-size: 2.4rem;
+            margin-bottom: .5rem;
+        }
+
+        /* Layout */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 800px){
+            .detail-grid { grid-template-columns: 1fr; }
+            .group-hero { height: 250px; }
+        }
+
+        /* Members */
+        .member-card {
+            background:white;
+            padding:1rem;
+            border-radius:12px;
+            box-shadow:0 6px 18px rgba(0,0,0,0.06);
+            margin-bottom:1rem;
+        }
+
+        /* Chat */
+        .chat-box {
+            background:white;
+            padding:1rem;
+            border-radius:12px;
+            height:330px;
+            overflow-y:auto;
+            box-shadow:0 6px 18px rgba(0,0,0,0.06);
+        }
+        .chat-msg {
+            margin-bottom: .8rem;
+            max-width: 75%;
+            padding: .6rem .9rem;
+            border-radius: 12px;
+            line-height: 1.4;
+        }
+        .me { background:#2563eb; color:white; margin-left:auto; }
+        .other { background:#f3f4f6; color:#111; }
+
+        .timestamp { font-size:.7rem; color:#9ca3af; margin-top:2px; }
+
+        .chat-input-wrap {
+            display:flex;
+            gap:.7rem;
+            margin-top:1rem;
+        }
+        .chat-input-wrap input {
+            flex:1; 
+            padding:.75rem;
+            border-radius:10px; 
+            border:1px solid #d1d5db;
+        }
+
+        /* Modal */
+        .modal-bg {
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.55);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:2000;
+        }
+        .modal-card {
+            background:white;
+            padding:1.7rem;
+            border-radius:16px;
+            width:420px;
+            box-shadow:0 12px 30px rgba(0,0,0,0.25);
+        }
+        .modal-card input, .modal-card textarea {
+            width: 100%; padding: 0.75rem; margin-bottom: 1rem;
+            border: 1px solid #d1d5db; border-radius: 8px;
+        }
+
+        /* Outline Red Delete Button */
+        .btn-outline-danger {
+            border:2px solid #dc2626;
+            color:#dc2626;
+            background:white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-outline-danger:hover {
+            background:#dc2626;
+            color:white;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">👥</div>
+                <span>Evinza</span>
+            </a>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+
+            <div class="nav-links" id="mobileMenu">
+                <a href="events.html" class="nav-link">📅 Events</a>
+                <a href="groups.html" class="nav-link">👥 Groups</a>
+                <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
+
+                <a href="create-event.html" class="btn btn-outline">+ Create Event</a>
+                <span id="authArea">
+                    <a href="login.html" class="btn btn-primary">👤 Login</a>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="padding:2rem 1rem;">
+
+        <!-- GROUP HERO -->
+        <div class="group-hero">
+            <img id="groupImage" alt="Group Image">
+            <div class="group-hero-overlay"></div>
+            <div class="group-hero-content">
+                <h1 id="groupTitle">Loading...</h1>
+                <p id="groupCategory" style="opacity:.9"></p>
+            </div>
+        </div>
+
+        <!-- GRID -->
+        <div class="detail-grid">
+
+            <!-- LEFT SIDE -->
+            <div>
+
+                <div class="card p-4" style="margin-bottom:1.5rem;">
+                    <h2>About this Group</h2>
+
+                    <p id="groupDesc" style="margin-top:.5rem;"></p>
+
+                    <p style="margin-top:1rem;"><strong>Location:</strong> <span id="groupLocation"></span></p>
+                    <p><strong>Members:</strong> <span id="memberCount">0</span></p>
+
+                    <button id="joinLeaveBtn" class="btn btn-primary" style="margin-top:1rem;">Join Group</button>
+
+                    <!-- EDIT + DELETE -->
+                    <div id="editDeleteBtns" style="margin-top:1.5rem; display:none; gap:.7rem;">
+                        <button id="editGroupBtn" class="btn btn-outline">Edit</button>
+                        <button id="deleteGroupBtn" class="btn btn-outline-danger">Delete</button>
+                    </div>
+                </div>
+
+                <!-- CHAT -->
+                <h2>Group Chat</h2>
+
+                <div id="chatBox" class="chat-box">
+                    <p class="muted" style="text-align:center; padding-top:2rem;">Join group to chat</p>
+                </div>
+
+                <div class="chat-input-wrap" id="chatInputArea" style="display:none;">
+                    <input id="chatInput" placeholder="Type a message...">
+                    <button id="sendChat" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div>
+                <h2 style="margin-bottom:1rem;">Members</h2>
+                <div id="membersList"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div id="editModal" class="modal-bg" style="display:none;">
+        <div class="modal-card">
+            <h2>Edit Group</h2>
+
+            <input id="egName" placeholder="Group Name">
+            <textarea id="egDesc" placeholder="Description" style="height:100px;"></textarea>
+            <input id="egLocation" placeholder="Location">
+            <input id="egImage" placeholder="Image URL">
+
+            <div style="display:flex;justify-content:flex-end;gap:.7rem;">
+                <button id="closeEdit" class="btn btn-outline">Cancel</button>
+                <button id="saveEdit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRM POPUP -->
+    <div id="deletePopup" class="modal-bg" style="display:none;">
+        <div class="modal-card" style="max-width:400px;">
+            <h2 style="color:#dc2626; margin-bottom:.5rem;">Delete Group</h2>
+            <p style="margin-bottom:1.2rem;">
+                Are you sure you want to delete this group? This action cannot be undone.
+            </p>
+
+            <div style="display:flex; justify-content:flex-end; gap:.7rem;">
+                <button id="cancelDelete" class="btn btn-outline">Cancel</button>
+                <button id="confirmDelete" class="btn-outline-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast" style="display:none;"></div>
+
+    <script src="http://localhost:4000/socket.io/socket.io.js"></script>
+    <script src="api.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupId = urlParams.get('id');
+        let currentGroup = null;
+        let currentUser = null;
+        let isMember = false;
+
+        const t = (msg) => {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
+        };
+
+        async function init() {
+            try {
+                // Check auth
+                const token = localStorage.getItem('token');
+                if (token) {
+                    try {
+                        currentUser = JSON.parse(localStorage.getItem('user'));
+                        const authArea = document.getElementById('authArea');
+                        if(authArea) {
+                             authArea.innerHTML = `<a href="profile.html" class="btn btn-primary">👤 Profile</a>`;
+                        }
+                    } catch(e) {}
+                }
+
+                if (!groupId) {
+                    t('No group ID provided');
+                    return;
+                }
+
+                // Fetch group
+                currentGroup = await api.groups.getById(groupId);
+                renderGroup(currentGroup);
+
+                // Setup socket
+                if (window.api && window.api.socket) {
+                    const socket = window.api.socket;
+                    socket.emit('join_group', groupId);
+                    
+                    socket.off('group:message'); // Remove previous listeners
+                    socket.on('group:message', (data) => {
+                        appendMessage(data);
+                    });
+                }
+
+            } catch (error) {
+                console.error(error);
+                t('Failed to load group');
+            }
+        }
+
+        function renderGroup(group) {
+            document.getElementById('groupImage').src = group.image || 'https://via.placeholder.com/800x320';
+            document.getElementById('groupTitle').textContent = group.name;
+            document.getElementById('groupCategory').textContent = group.category;
+            document.getElementById('groupDesc').textContent = group.description;
+            document.getElementById('groupLocation').textContent = group.location;
+            
+            const members = group.members || [];
+            document.getElementById('memberCount').textContent = members.length;
+            
+            document.getElementById('membersList').innerHTML = members
+                .map(m => `<div class="member-card">👤 ${m.name || 'User'}</div>`)
+                .join("");
+
+            // Check membership
+            isMember = currentUser && members.some(m => m.id === currentUser.id);
+            
+            const joinBtn = document.getElementById('joinLeaveBtn');
+            if (isMember) {
+                joinBtn.textContent = "Leave Group";
+                joinBtn.classList.remove('btn-primary');
+                joinBtn.classList.add('btn-outline');
+                joinBtn.onclick = leaveGroup;
+                
+                // Show chat input
+                document.getElementById('chatInputArea').style.display = 'flex';
+                document.getElementById('chatBox').innerHTML = ''; // Clear "Join to chat"
+                // Ideally fetch chat history here if API supported it
+            } else {
+                joinBtn.textContent = "Join Group";
+                joinBtn.classList.add('btn-primary');
+                joinBtn.classList.remove('btn-outline');
+                joinBtn.onclick = joinGroup;
+                
+                document.getElementById('chatInputArea').style.display = 'none';
+                document.getElementById('chatBox').innerHTML = '<p class="muted" style="text-align:center; padding-top:2rem;">Join group to chat</p>';
+            }
+
+            // Check permissions (Organizer or Admin)
+            if (currentUser && (currentUser.id === group.organizerId || currentUser.role === 'admin')) {
+                document.getElementById('editDeleteBtns').style.display = 'flex';
+                setupEditDelete();
+            } else {
+                document.getElementById('editDeleteBtns').style.display = 'none';
+            }
+        }
+
+        async function joinGroup() {
+            if (!currentUser) {
+                t('Please login to join');
+                setTimeout(() => location.href = 'login.html', 1000);
+                return;
+            }
+            try {
+                await api.groups.join(groupId);
+                t('Joined group!');
+                init(); // Reload
+            } catch (error) {
+                t(error.message || 'Failed to join');
+            }
+        }
+
+        async function leaveGroup() {
+            if (!confirm('Leave this group?')) return;
+            try {
+                await api.groups.leave(groupId);
+                t('Left group');
+                init(); // Reload
+            } catch (error) {
+                t(error.message || 'Failed to leave');
+            }
+        }
+
+        function setupEditDelete() {
+            const editModal = document.getElementById('editModal');
+            const deletePopup = document.getElementById('deletePopup');
+
+            document.getElementById('editGroupBtn').onclick = () => {
+                editModal.style.display = 'flex';
+                document.getElementById('egName').value = currentGroup.name;
+                document.getElementById('egDesc').value = currentGroup.description;
+                document.getElementById('egLocation').value = currentGroup.location;
+                document.getElementById('egImage').value = currentGroup.image || '';
+            };
+
+            document.getElementById('closeEdit').onclick = () => editModal.style.display = 'none';
+            
+            document.getElementById('saveEdit').onclick = async () => {
+                try {
+                    await api.groups.update(groupId, {
+                        name: document.getElementById('egName').value,
+                        description: document.getElementById('egDesc').value,
+                        location: document.getElementById('egLocation').value,
+                        image: document.getElementById('egImage').value
+                    });
+                    t('Group updated');
+                    editModal.style.display = 'none';
+                    init();
+                } catch (error) {
+                    t(error.message || 'Update failed');
+                }
+            };
+
+            document.getElementById('deleteGroupBtn').onclick = () => deletePopup.style.display = 'flex';
+            document.getElementById('cancelDelete').onclick = () => deletePopup.style.display = 'none';
+            
+            document.getElementById('confirmDelete').onclick = async () => {
+                try {
+                    await api.groups.delete(groupId);
+                    t('Group deleted');
+                    setTimeout(() => location.href = 'groups.html', 1000);
+                } catch (error) {
+                    t(error.message || 'Delete failed');
+                }
+            };
+        }
+
+        // Chat Logic
+        const chatBox = document.getElementById('chatBox');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChat');
+
+        function appendMessage(data) {
+            const isMe = currentUser && data.userId === currentUser.id; // Assuming data has userId
+            // If data doesn't have userId, we might need to rely on 'me' flag from frontend emit, 
+            // but for incoming socket messages, we need to know who sent it.
+            // The backend socket event should include sender info.
+            
+            // For now, let's assume data structure: { message, senderName, timestamp }
+            
+            const div = document.createElement('div');
+            div.className = `chat-msg ${isMe ? 'me' : 'other'}`;
+            div.innerHTML = `
+                ${data.message}
+                <div class="timestamp">${new Date(data.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+            `;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        sendChatBtn.onclick = () => {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            
+            if (window.api && window.api.socket) {
+                window.api.socket.emit('group:message', {
+                    groupId,
+                    message: text,
+                    userId: currentUser.id, // Send userId so backend can broadcast it
+                    senderName: currentUser.name,
+                    timestamp: Date.now()
+                });
+                
+                // Optimistic append
+                appendMessage({
+                    message: text,
+                    userId: currentUser.id,
+                    timestamp: Date.now()
+                });
+                
+                chatInput.value = '';
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Groups - Evinza</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">👥</div>
+                <span>Evinza</span>
+            </a>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+
+            <div class="nav-links" id="mobileMenu">
+                <a href="events.html" class="nav-link">📅 Events</a>
+                <a href="groups.html" class="nav-link active">👥 Groups</a>
+                <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
+
+                <a href="create-event.html" class="btn btn-outline">+ Create Event</a>
+                <span id="authArea">
+                    <a href="login.html" class="btn btn-primary">👤 Login</a>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div style="background: linear-gradient(to br, #faf5ff, #ffffff, #eff6ff); border-bottom: 1px solid #e5e7eb; padding: 3rem 1rem;">
+        <div class="container">
+            <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">Discover groups</h1>
+            <p style="color: #6b7280; font-size: 1.125rem; margin-bottom: 2rem;">Join communities that share your passions</p>
+            <div style="max-width: 32rem;">
+                <input type="text" id="searchInput" placeholder="Search groups by name or interest..." style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid #e5e7eb; border-radius: 8px; background: white;">
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE GROUP BUTTON -->
+    <div class="container" style="padding: 1.5rem 1rem 0; display:flex; justify-content:flex-end;">
+        <button class="btn btn-primary" id="openCreateGroupModal" style="font-size:1rem;">
+            ➕ Create Group
+        </button>
+    </div>
+
+    <div class="container" style="padding: 2rem 1rem;">
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+            <select id="categoryFilter" style="flex: 1; min-width: 200px; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 8px; background: white;">
+                <option value="all">All Categories</option>
+            </select>
+            <select id="sortFilter" style="flex: 1; min-width: 200px; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 8px; background: white;">
+                <option value="members">Most members</option>
+                <option value="events">Most events</option>
+                <option value="newest">Newest</option>
+            </select>
+        </div>
+
+        <p style="margin-bottom: 1.5rem; color: #6b7280;"><strong id="groupCount">0</strong> groups found</p>
+        <div class="grid grid-3" id="groupsGrid"></div>
+    </div>
+
+    <!-- CREATE GROUP MODAL -->
+    <div id="createGroupModal" class="modal-bg" style="display:none;">
+        <div class="modal-card">
+            <h2>Create New Group</h2>
+
+            <label>Group Name</label>
+            <input type="text" id="cgName">
+
+            <label>Description</label>
+            <textarea id="cgDesc"></textarea>
+
+            <label>Category</label>
+            <select id="cgCategory"></select>
+
+            <label>Location</label>
+            <input type="text" id="cgLocation">
+
+            <label>Image URL</label>
+            <input type="text" id="cgImage" placeholder="https://">
+
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="closeCreateGroup">Cancel</button>
+                <button class="btn btn-primary" id="saveCreateGroup">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .modal-bg {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.6);
+        display:flex; align-items:center; justify-content:center;
+        z-index:2000;
+    }
+    .modal-card {
+        width: 400px;
+        background:white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    }
+    .modal-card input, .modal-card textarea, .modal-card select {
+        width:100%; padding:.7rem; margin:.4rem 0 1rem;
+        border-radius:8px; border:1px solid #d1d5db;
+    }
+    .modal-card textarea { height: 80px; }
+    .modal-actions {
+        display:flex; justify-content:flex-end; gap:.5rem;
+    }
+    </style>
+
+    <script src="api.js"></script>
+    <script>
+        const t = (msg) => { 
+            let el = document.getElementById('toast');
+            if(!el) {
+                el = document.createElement('div');
+                el.id = 'toast';
+                el.className = 'toast';
+                el.style.display = 'none';
+                document.body.appendChild(el);
+            }
+            el.textContent=msg; 
+            el.style.display='block'; 
+            setTimeout(()=>el.style.display='none',3000); 
+        };
+
+        let allGroups = [];
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const searchInput = document.getElementById('searchInput');
+        const groupCount = document.getElementById('groupCount');
+        const groupsGrid = document.getElementById('groupsGrid');
+        const cgCategory = document.getElementById('cgCategory');
+
+        const categories = [
+            { name: 'Technology' }, { name: 'Health' }, { name: 'Music' }, 
+            { name: 'Business' }, { name: 'Art' }, { name: 'Sports' }, 
+            { name: 'Food' }, { name: 'Travel' }
+        ];
+
+        function populateCategories() {
+            categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.textContent = c.name;
+                categoryFilter.appendChild(opt);
+            });
+            categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.textContent = c.name;
+                cgCategory.appendChild(opt);
+            });
+        }
+
+        async function fetchGroups() {
+            try {
+                const response = await api.groups.getAll('?limit=100'); 
+                allGroups = response.groups || [];
+                renderGroups();
+            } catch (error) {
+                console.error(error);
+                t('Failed to load groups');
+            }
+        }
+
+        document.getElementById("openCreateGroupModal").onclick = () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                t('Please login to create a group');
+                setTimeout(() => location.href = 'login.html', 1500);
+                return;
+            }
+            document.getElementById("createGroupModal").style.display = "flex";
+        };
+        document.getElementById("closeCreateGroup").onclick = () => {
+            document.getElementById("createGroupModal").style.display = "none";
+        };
+
+        document.getElementById("saveCreateGroup").onclick = async () => {
+            const name = document.getElementById('cgName').value;
+            const description = document.getElementById('cgDesc').value;
+            const category = document.getElementById('cgCategory').value;
+            const location = document.getElementById('cgLocation').value;
+            const image = document.getElementById('cgImage').value;
+
+            if (!name || !location) {
+                t('Name and Location are required');
+                return;
+            }
+
+            try {
+                await api.groups.create({
+                    name,
+                    description,
+                    category,
+                    location,
+                    image: image || "https://via.placeholder.com/400x250"
+                });
+                t('Group created successfully!');
+                document.getElementById("createGroupModal").style.display = "none";
+                fetchGroups(); 
+            } catch (error) {
+                console.error(error);
+                t(error.message || 'Failed to create group');
+            }
+        };
+
+        function renderGroups() {
+            let filtered = allGroups.filter(group => {
+                const matchesCategory = categoryFilter.value === 'all' || group.category === categoryFilter.value;
+                const matchesSearch = group.name.toLowerCase().includes(searchInput.value.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            const sortVal = sortFilter.value;
+            filtered.sort((a, b) => {
+                if (sortVal === 'members') return (b.members?.length || 0) - (a.members?.length || 0);
+                if (sortVal === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
+                return 0;
+            });
+
+            groupCount.textContent = filtered.length;
+            
+            if (filtered.length === 0) {
+                groupsGrid.innerHTML = '<div class="muted" style="grid-column: 1/-1; text-align:center;">No groups found.</div>';
+                return;
+            }
+
+            groupsGrid.innerHTML = filtered.map(group => `
+                <a href="group-detail.html?id=${group.id}" class="card">
+                    <div style="position: relative;">
+                        <img src="${group.image || 'https://via.placeholder.com/400x250'}" class="card-image">
+                        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${group.name}</h3>
+                        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">${group.description || ''}</p>
+                        <div style="color:#6b7280; font-size:.875rem;">
+                            👥 ${(group.members || []).length} members<br>
+                            📍 ${group.location}
+                        </div>
+                    </div>
+                </a>
+            `).join("");
+        }
+
+        categoryFilter.onchange = renderGroups;
+        sortFilter.onchange = renderGroups;
+        searchInput.oninput = renderGroups;
+
+        // Check auth for navbar
+        const token = localStorage.getItem('token');
+        if (token) {
+            const authArea = document.getElementById('authArea');
+            if(authArea) {
+                 authArea.innerHTML = `
+                  <a href="profile.html" class="btn btn-primary">👤 Profile</a>
+                `;
+            }
+        }
+
+        populateCategories();
+        fetchGroups();
+    </script>
+</body>
+</html>

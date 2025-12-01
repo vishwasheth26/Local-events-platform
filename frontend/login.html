@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Evinza</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* small page-specific tweaks */
+    .auth-wrap { max-width: 980px; margin: 3rem auto; display: grid; grid-template-columns: 1fr 420px; gap: 2rem; align-items: center; }
+    .auth-hero { padding: 3rem; border-radius: 16px; }
+    .auth-card { padding: 2rem; border-radius: 12px; background: white; box-shadow: 0 8px 30px rgba(16,24,40,0.06); }
+    .input { width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 1rem; margin-top: 0.5rem; }
+    .small { font-size: 0.9rem; color: #6b7280; margin-top: 0.5rem; }
+    .otp-inputs { display: flex; gap: 0.5rem; margin-top: 1rem; justify-content: center; }
+    .otp-inputs input { width: 3rem; height: 3rem; text-align: center; font-size: 1.25rem; border: 1px solid #d1d5db; border-radius: 8px; }
+    .muted { color: #6b7280; font-size: 0.9rem; }
+    .linkish { color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .linkish:hover { text-decoration: underline; }
+    .toast-sim { position: fixed; right: 1.5rem; bottom: 1.5rem; background: #111827; color: white; padding: 0.75rem 1rem; border-radius: 8px; z-index: 9999; display: none; }
+    .full-btn { width: 100%; margin-top: 1.5rem; }
+    @media (max-width:900px){ .auth-wrap{ grid-template-columns: 1fr; padding: 1rem } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo"><div class="logo-icon">👥</div><span>Evinza</span></a>
+      <div class="nav-links">
+        <a href="index.html" class="btn btn-primary">Home</a>
+      </div>
+    </div>
+  </nav>
+  
+<main class="auth-wrap">
+
+  <!-- LEFT SECTION -->
+  <div class="auth-hero login-box">
+
+    <h1>Welcome back �</h1>
+    <p class="muted" style="margin-bottom: 2rem;">Login to discover events, meet people, and join amazing experiences.</p>
+
+    <!-- PASSWORD LOGIN (Default) -->
+    <div id="passwordLoginSection" class="login-card">
+      <label class="muted">Email</label>
+      <input id="emailInput" class="input" placeholder="Enter email">
+      
+      <label class="muted" style="margin-top:1rem; display:block;">Password</label>
+      <input id="passwordInput" type="password" class="input" placeholder="Enter password">
+
+      <button id="loginBtn" class="btn btn-primary full-btn">Login</button>
+      
+      <div style="text-align:center; margin-top:1rem;">
+        <span class="muted">Or </span>
+        <a id="showOtpLoginBtn" class="linkish">Sign in with OTP</a>
+      </div>
+      <div style="text-align:center; margin-top:0.5rem;">
+        <span class="muted">Don't have an account? </span>
+        <a href="signup.html" class="linkish">Sign up</a>
+      </div>
+    </div>
+
+    <!-- OTP LOGIN (Hidden) -->
+    <div id="otpLoginSection" class="login-card" style="display:none;">
+      <label class="muted">Phone or Email</label>
+      <input id="otpEmailInput" class="input" placeholder="Enter phone or email">
+
+      <button id="sendOtpBtn" class="btn btn-primary full-btn">Send OTP</button>
+      
+      <div style="text-align:center; margin-top:1rem;">
+        <span class="muted">Or </span>
+        <a id="showPasswordLoginBtn" class="linkish">Sign in with Password</a>
+      </div>
+    </div>
+
+    <!-- OTP VERIFY (Hidden) -->
+    <div id="otpVerifySection" class="login-card" style="display:none;">
+      <label class="muted">Enter 6-digit OTP sent to your email</label>
+
+      <div class="otp-inputs otp-wrapper">
+        <input maxlength="1" class="otp-input">
+        <input maxlength="1" class="otp-input">
+        <input maxlength="1" class="otp-input">
+        <input maxlength="1" class="otp-input">
+        <input maxlength="1" class="otp-input">
+        <input maxlength="1" class="otp-input">
+      </div>
+
+      <button id="verifyOtpBtn" class="btn btn-primary full-btn">Verify & Login</button>
+      
+      <div style="text-align:center; margin-top:1rem;">
+        <a id="backToOtpBtn" class="linkish">Back</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT IMAGE SECTION -->
+  <div class="login-image-box">
+    <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&q=80&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover; border-radius:16px;">
+  </div>
+
+</main>
+  <div id="toast" class="toast-sim"></div>
+<script src="api.js"></script>
+<script>
+  const toast = (msg) => {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(()=> t.style.display = 'none', 3500);
+  };
+
+  // Sections
+  const passwordLoginSection = document.getElementById('passwordLoginSection');
+  const otpLoginSection = document.getElementById('otpLoginSection');
+  const otpVerifySection = document.getElementById('otpVerifySection');
+
+  // Inputs
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const otpEmailInput = document.getElementById('otpEmailInput');
+  const otpInputs = Array.from(document.querySelectorAll('.otp-inputs input'));
+
+  // Buttons & Links
+  const loginBtn = document.getElementById('loginBtn');
+  const showOtpLoginBtn = document.getElementById('showOtpLoginBtn');
+  const showPasswordLoginBtn = document.getElementById('showPasswordLoginBtn');
+  const sendOtpBtn = document.getElementById('sendOtpBtn');
+  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+  const backToOtpBtn = document.getElementById('backToOtpBtn');
+
+  // Toggle Views
+  showOtpLoginBtn.onclick = () => {
+      passwordLoginSection.style.display = 'none';
+      otpLoginSection.style.display = 'block';
+      otpEmailInput.value = emailInput.value; // Pre-fill email
+  };
+
+  showPasswordLoginBtn.onclick = () => {
+      otpLoginSection.style.display = 'none';
+      passwordLoginSection.style.display = 'block';
+      emailInput.value = otpEmailInput.value; // Pre-fill email
+  };
+
+  backToOtpBtn.onclick = () => {
+      otpVerifySection.style.display = 'none';
+      otpLoginSection.style.display = 'block';
+  };
+
+  // Password Login
+  loginBtn.onclick = async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      
+      if (!email || !password) { toast('Please enter email and password'); return; }
+
+      try {
+          const response = await api.auth.login(email, password);
+          handleLoginSuccess(response);
+      } catch (error) {
+          toast(error.message || 'Login failed');
+      }
+  };
+
+  // Send OTP
+  sendOtpBtn.onclick = async () => {
+      const email = otpEmailInput.value.trim();
+      if (!email) { toast('Please enter email'); return; }
+
+      try {
+          await api.auth.sendOtp(email);
+          toast('OTP sent to email');
+          otpLoginSection.style.display = 'none';
+          otpVerifySection.style.display = 'block';
+          otpInputs.forEach(i => i.value='');
+          otpInputs[0].focus();
+      } catch (error) {
+          toast(error.message || 'Failed to send OTP');
+      }
+  };
+
+  // Verify OTP
+  verifyOtpBtn.onclick = async () => {
+      const email = otpEmailInput.value.trim();
+      const otp = otpInputs.map(i => i.value).join('');
+      
+      if (otp.length !== 6) { toast('Enter 6-digit OTP'); return; }
+
+      try {
+          const response = await api.auth.verifyOtp(email, otp);
+          handleLoginSuccess(response);
+      } catch (error) {
+          toast(error.message || 'Verification failed');
+      }
+  };
+
+  function handleLoginSuccess(response) {
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      toast('Login successful!');
+      setTimeout(() => window.location.href = 'index.html', 1000);
+  }
+
+  // Auto move between OTP inputs
+  otpInputs.forEach((el, idx) => {
+    el.addEventListener('input', (e)=> {
+      el.value = el.value.replace(/[^0-9]/g, '').slice(0, 1);
+      if (el.value.length > 0 && idx < otpInputs.length-1) otpInputs[idx+1].focus();
+    });
+    el.addEventListener('keydown', (e)=> {
+      if (e.key === 'Backspace' && !el.value && idx>0) otpInputs[idx-1].focus();
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Payment Method</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 3rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .payment-title {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .payment-option {
+            border: 2px solid #e5e7eb;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .payment-option:hover {
+            border-color: #2563eb;
+            background: #f3f4ff;
+        }
+        .payment-option span {
+            font-size: 1.5rem;
+        }
+        .btn-pay {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">👥</div>
+                <span>Evinza</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="payment-container">
+        <h2 class="payment-title">Choose a Payment Method</h2>
+        <p style="text-align:center;color:#6b7280;margin-bottom:2rem;">
+            Complete your payment to join this event.
+        </p>
+
+        <div id="paymentOptions">
+            <div class="payment-option" data-method="UPI">
+                <span>📱</span> <strong>UPI (GPay / PhonePe / Paytm)</strong>
+            </div>
+            <div class="payment-option" data-method="Card">
+                <span>💳</span> <strong>Debit / Credit Card</strong>
+            </div>
+            <div class="payment-option" data-method="Netbanking">
+                <span>🏦</span> <strong>Net Banking</strong>
+            </div>
+            <div class="payment-option" data-method="Wallet">
+                <span>👛</span> <strong>Wallets</strong>
+            </div>
+        </div>
+
+        <button id="payNow" class="btn btn-primary btn-pay">Continue</button>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        let selectedMethod = null;
+        const params = new URLSearchParams(window.location.search);
+        const eventId = params.get('eventId');
+        const amount = params.get('amount');
+
+        if (!eventId || !amount) {
+            alert("Invalid payment request");
+            window.location.href = 'events.html';
+        }
+
+        document.querySelectorAll(".payment-option").forEach(option => {
+            option.addEventListener("click", () => {
+                document.querySelectorAll(".payment-option")
+                    .forEach(o => o.style.borderColor = "#e5e7eb");
+                
+                option.style.borderColor = "#2563eb";
+                selectedMethod = option.dataset.method;
+            });
+        });
+
+        document.getElementById("payNow").addEventListener("click", async () => {
+            if (!selectedMethod) {
+                alert("Please select a payment method");
+                return;
+            }
+
+            const btn = document.getElementById("payNow");
+            btn.textContent = "Processing...";
+            btn.disabled = true;
+
+            try {
+                // 1. Create Order
+                const orderData = await window.api.payments.createOrder({
+                    eventId,
+                    amount: parseFloat(amount),
+                    currency: 'USD'
+                });
+
+                if (!orderData.success) throw new Error("Order creation failed");
+
+                // 2. Simulate Payment Processing (Mock Gateway)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // 3. Verify Payment
+                const verifyData = await window.api.payments.verifyPayment({
+                    orderId: orderData.orderId,
+                    paymentId: `pay_${Date.now()}`, // Mock payment ID
+                    signature: 'mock_signature'
+                });
+
+                if (verifyData.success) {
+                    window.location.href = `payment-confirmation.html?method=${selectedMethod}&tid=${verifyData.transactionId}`;
+                } else {
+                    throw new Error("Payment verification failed");
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("Payment failed: " + error.message);
+                btn.textContent = "Try Again";
+                btn.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>

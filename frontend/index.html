@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Evinza - Connect with people who share your interests</title>
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">👥</div>
+          <span>Evinza</span>
+        </a>
+        <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+
+        <div class="nav-links" id="mobileMenu">
+          <a href="events.html" class="nav-link">📅 Events</a>
+          <a href="groups.html" class="nav-link">👥 Groups</a>
+          <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
+
+          <a id="createEventBtn" class="btn btn-outline">+ Create Event</a>
+          <span id="authArea">
+            <a href="login.html" id="loginBtn" class="btn btn-primary">👤 Login</a>
+            <a href="signup.html" id="signupBtn" class="btn btn-primary">Sign Up</a>
+          </span>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Connect with people who <span class="gradient-text">share your interests</span></h1>
+        <p>Discover events, join groups, and meet amazing people in your community</p>
+
+        <div class="search-box">
+          <form id="searchForm" class="search-form" onsubmit="return false;">
+            <div class="input-group">
+              <span class="input-icon">🔍</span>
+              <input id="searchInput" type="text" placeholder="Search for events, groups, or activities..." />
+            </div>
+
+            <div class="input-group">
+              <span class="input-icon">📍</span>
+              <input id="locationInput" type="text" placeholder="Location" />
+            </div>
+
+            <button class="btn btn-primary" id="searchBtn">Search</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="section bg-white">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">About Evinza</h2>
+          <p class="section-subtitle">A modern community-driven experience</p>
+        </div>
+
+        <div class="about-box">
+          <div>
+            <div class="about-icon">🌈</div>
+            <h3>Discover, Connect & Experience Together</h3>
+            <p style="font-size:1.1rem; color:#4b5563;">
+              Evinza brings communities together — explore new hobbies, attend workshops,
+              join fitness sessions, or participate in cultural meetups.
+            </p>
+
+            <div class="about-points">
+              <span>✨ Find events based on your interests</span>
+              <span>💬 Join groups & build connections</span>
+              <span>📍 Explore activities near you</span>
+              <span>🎉 Experience a vibrant community</span>
+            </div>
+          </div>
+
+          <img
+            src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=800"
+            style="border-radius: 16px; width: 100%; object-fit: cover"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="section bg-white">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Explore by category</h2>
+          <p class="section-subtitle">Find events that match your passions</p>
+        </div>
+
+        <div class="grid grid-4" id="categoriesGrid"></div>
+      </div>
+    </section>
+
+    <section class="section bg-gray">
+      <div class="container">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="section-title">Upcoming events</h2>
+          <a href="events.html" class="btn btn-outline">View all →</a>
+        </div>
+
+        <div class="grid grid-3" id="featuredEvents"></div>
+      </div>
+    </section>
+
+    <section class="section bg-white">
+      <div class="container">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="section-title">Popular groups</h2>
+          <a href="groups.html" class="btn btn-outline">View all →</a>
+          <p class="section-subtitle">Groups with over 50 active members</p>
+        </div>
+
+        <div id="popularGroups" class="grid grid-3"></div>
+      </div>
+    </section>
+
+    <section
+      class="section"
+      style="
+        background: linear-gradient(135deg, #2563eb, #7c3aed, #ec4899, #f59e0b);
+        color: white;
+        text-align: center;
+      "
+    >
+      <div class="container">
+        <h2 style="font-size: 3rem; font-weight: bold">
+          Start your journey with us
+        </h2>
+        <p style="font-size: 1.3rem; margin-bottom: 2rem">
+          Discover new experiences every day
+        </p>
+
+        <a
+          id="startEventBtn"
+          class="btn"
+          style="background: white; color: #7c3aed; padding: 1rem 2rem"
+        >
+          🚀 Start an Event
+        </a>
+      </div>
+    </section>
+
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

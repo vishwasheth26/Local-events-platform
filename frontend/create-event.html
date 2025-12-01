@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Create Event — Evinza</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .form-wrap {
+      max-width: 900px;
+      margin: 2.5rem auto;
+    }
+
+    .grid-2cols {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1rem;
+    }
+
+    .input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .muted {
+      color: #6b7280;
+    }
+
+    @media (max-width:900px) {
+      .grid-2cols {
+        grid-template-columns: 1fr;
+        padding: 1rem
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">👥</div><span>Evinza</span>
+      </a>
+      <div class="nav-links">
+        <a href="events.html" class="nav-link">📅 Events</a>
+        <a href="groups.html" class="nav-link">👥 Groups</a>
+        <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
+        <span id="authArea">
+          <a href="login.html" class="btn btn-primary">👤 Login</a>
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container form-wrap">
+    <div class="card" style="padding:1.25rem;">
+      <h1 style="margin-bottom:0.25rem;">Create an event</h1>
+      <p class="muted">Fill in details and publish. Your event will be saved in local storage (demo mode).</p>
+
+      <div style="margin-top:1rem;" class="grid-2cols">
+        <div>
+          <label class="muted">Event title</label>
+          <input id="title" class="input" placeholder="e.g., Monday JavaScript Study Group">
+
+          <div style="display:flex; gap:.75rem; margin-top:0.75rem;">
+            <div style="flex:1;">
+              <label class="muted">Category</label>
+              <select id="category" class="input"></select>
+            </div>
+            <div style="width:160px;">
+              <label class="muted">Date</label>
+              <input id="date" class="input" type="date">
+            </div>
+          </div>
+
+          <div style="display:flex; gap:.75rem; margin-top:0.75rem;">
+            <div style="flex:1;">
+              <label class="muted">Time</label>
+              <input id="time" class="input" type="time">
+            </div>
+            <div style="width:160px;">
+              <label class="muted">Price</label>
+              <input id="price" class="input" placeholder="Free or $20">
+            </div>
+          </div>
+
+          <div style="margin-top:0.75rem;">
+            <label class="muted">Location</label>
+            <input id="location" class="input" placeholder="Address or 'Online'">
+          </div>
+
+          <div style="margin-top:0.75rem;">
+            <label class="muted">Max attendees</label>
+            <input id="maxAtt" class="input" type="number" min="1" placeholder="e.g., 50">
+          </div>
+
+          <div style="margin-top:0.75rem;">
+            <label class="muted">Description</label>
+            <textarea id="description" class="input" rows="6"
+              placeholder="Give attendees a clear idea of what to expect"></textarea>
+          </div>
+
+          <div style="display:flex; gap:.5rem; margin-top:0.75rem;">
+            <button id="createBtn" class="btn btn-primary">Create event</button>
+            <a href="events.html" class="btn btn-outline">Cancel</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="padding:1rem;">
+            <label class="muted">Online event?</label>
+            <div style="display:flex; gap:.5rem; margin-top:0.5rem;">
+              <button id="isOnlineYes" class="btn btn-outline">Online</button>
+              <button id="isOnlineNo" class="btn btn-outline">In-person</button>
+            </div>
+
+            <hr style="margin:0.75rem 0;">
+            <label class="muted">Cover image URL</label>
+            <input id="image" class="input" placeholder="https://images.unsplash.com/..." />
+            <div style="margin-top:0.75rem;">
+              <label class="muted">Organizer email</label>
+              <input id="organizerEmail" class="input" placeholder="organizer@example.com">
+            </div>
+
+            <div style="margin-top:1rem; text-align:center;">
+              <div id="previewWrap" style="border-radius:8px; overflow:hidden;">
+                <img id="previewImg" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800"
+                  style="width:100%; height:160px; object-fit:cover;">
+              </div>
+              <p class="muted" style="margin-top:0.5rem;">Preview</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <script src="api.js"></script>
+  <script>
+    const t = (m) => { const el = document.getElementById('toast'); el.textContent = m; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 2000); };
+
+    // Check auth
+    const token = localStorage.getItem('token');
+    if (token) {
+      const authArea = document.getElementById('authArea');
+      if (authArea) authArea.innerHTML = `<a href="profile.html" class="btn btn-primary">👤 Profile</a>`;
+    } else {
+      t('Please login to create events');
+      setTimeout(() => location.href = 'login.html', 1500);
+    }
+
+    // Populate categories
+    const categories = [
+      { name: 'Technology' }, { name: 'Music' }, { name: 'Business' }, { name: 'Health' }, { name: 'Food' }, { name: 'Art' }, { name: 'Sports' }
+    ];
+    const catSel = document.getElementById('category');
+    categories.forEach(c => catSel.innerHTML += `<option value="${c.name}">${c.name}</option>`);
+
+    document.getElementById('image').addEventListener('input', (e) => {
+      const v = e.target.value.trim();
+      if (v) document.getElementById('previewImg').src = v;
+    });
+
+    let isOnline = false;
+    document.getElementById('isOnlineYes').addEventListener('click', () => { isOnline = true; t('Marked as online'); });
+    document.getElementById('isOnlineNo').addEventListener('click', () => { isOnline = false; t('Marked as in-person'); });
+
+    const createBtn = document.getElementById('createBtn');
+    createBtn.addEventListener('click', async () => {
+      const title = document.getElementById('title').value.trim();
+      const category = document.getElementById('category').value;
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const eventlocation = document.getElementById('location').value.trim();
+      const price = document.getElementById('price').value.trim() || '0';
+      const maxAtt = parseInt(document.getElementById('maxAtt').value) || 50;
+      const image = document.getElementById('image').value.trim() || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800';
+      const description = document.getElementById('description').value.trim();
+
+      if (!title || !date) { t('Enter title and date'); return; }
+
+      const eventData = {
+        title,
+        description,
+        date,
+        time,
+        location: eventlocation || (isOnline ? 'Online' : ''),
+        category,
+        maxAttendees: maxAtt,
+        image,
+        isOnline,
+        price: parseFloat(price) || 0
+      };
+
+      try {
+        await api.events.create(eventData);
+        t('Event created successfully');
+        setTimeout(() => window.location.href = "events.html", 1000);
+      } catch (error) {
+        t(error.message || 'Failed to create event');
+      }
+    });
+  </script>
+</body>
+
+</html>

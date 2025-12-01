@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calendar — Evinza</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .cal-wrap { max-width:1100px; margin:2.5rem auto; display:grid; grid-template-columns: 1fr 360px; gap:1.25rem; }
+    .calendar { background:white; padding:1rem; border-radius:12px; }
+    .cal-grid { display:grid; grid-template-columns: repeat(7,1fr); gap:0.5rem; }
+    .cal-day { padding:0.75rem; border-radius:8px; min-height:90px; background:#fff; border:1px solid transparent; transition:all .15s; }
+    .cal-day:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(16,24,40,0.06); }
+    .other-month { opacity:0.35; }
+    .date-num { font-weight:700; }
+    .dot { width:8px;height:8px;border-radius:999px;display:inline-block;margin-left:6px; }
+    .event-list { display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem; }
+    .event-item { padding:0.5rem; border-radius:8px; background:#f9fafb; display:flex; gap:0.5rem; align-items:center; }
+    @media (max-width:900px){ .cal-wrap{ grid-template-columns: 1fr; padding:1rem } .calendar { order: 2; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo"><div class="logo-icon">👥</div><span>Evinza</span></a>
+      <div class="nav-links">
+        <a href="events.html" class="nav-link">Events</a>
+        <a href="groups.html" class="nav-link">Groups</a>
+        <a href="create-event.html" class="btn btn-outline">+ Create Event</a>
+        <a href="profile.html" class="btn btn-primary">Profile</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container cal-wrap">
+    <div class="calendar card" id="calendarCard">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button id="prevMonth" class="btn btn-outline">◀</button>
+          <button id="nextMonth" class="btn btn-outline">▶</button>
+          <h3 id="monthTitle" style="margin:0 0 0 0.75rem;"></h3>
+        </div>
+        <div>
+          <button id="todayBtn" class="btn btn-primary">Today</button>
+        </div>
+      </div>
+
+      <div class="cal-grid" id="dayNames" style="margin-bottom:0.5rem; font-weight:700; color:#6b7280;">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+
+      <div class="cal-grid" id="datesGrid"></div>
+    </div>
+
+    <aside>
+      <div class="card" style="padding:1rem;">
+        <h3 style="margin-bottom:0.5rem;">Events on <span id="selectedDateLabel">—</span></h3>
+        <div id="eventsForDay" class="event-list muted">Select a date to view events</div>
+        <hr style="margin:0.75rem 0;">
+        <a href="create-event.html" class="btn btn-primary" style="width:100%;">Create event</a>
+        <a href="events.html" class="btn btn-outline" style="width:100%; margin-top:0.5rem;">All events</a>
+      </div>
+      <div style="height:0.5rem"></div>
+      <div class="card" style="padding:1rem;">
+        <h4>Legend</h4>
+        <div style="display:flex; gap:0.5rem; margin-top:0.5rem; align-items:center;">
+          <div style="width:10px;height:10px;background:#2563eb;border-radius:999px;"></div><div class="muted">In-person</div>
+        </div>
+        <div style="display:flex; gap:0.5rem; margin-top:0.5rem; align-items:center;">
+          <div style="width:10px;height:10px;background:#10b981;border-radius:999px;"></div><div class="muted">Online</div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <script src="api.js"></script>
+  <script>
+    // calendar logic
+    const toastEl = document.getElementById('toast');
+    const showToast = (m) => { toastEl.textContent = m; toastEl.style.display='block'; setTimeout(()=> toastEl.style.display='none',2500); };
+
+    const datesGrid = document.getElementById('datesGrid');
+    const monthTitle = document.getElementById('monthTitle');
+    const selectedDateLabel = document.getElementById('selectedDateLabel');
+    const eventsForDay = document.getElementById('eventsForDay');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    const todayBtn = document.getElementById('todayBtn');
+
+    let now = new Date();
+    let viewYear = now.getFullYear();
+    let viewMonth = now.getMonth();
+    let allEvents = [];
+
+    async function loadAllEvents(){
+      try {
+        const response = await api.events.getAll();
+        allEvents = (response.events || response).map(e => {
+            return Object.assign({}, e, { dateObj: new Date(e.date) });
+        });
+        renderCalendar(viewYear, viewMonth);
+      } catch (error) {
+        console.error("Failed to fetch events", error);
+        showToast('Failed to load events');
+      }
+    }
+
+    function renderCalendar(y,m){
+      const first = new Date(y,m,1);
+      const startDay = first.getDay();
+      const daysInMonth = new Date(y,m+1,0).getDate();
+      const prevDays = new Date(y,m,0).getDate();
+
+      monthTitle.textContent = first.toLocaleString('default',{month:'long', year:'numeric'});
+
+      datesGrid.innerHTML = '';
+      // previous month tail
+      for(let i= startDay-1; i>=0; --i){
+        const d = prevDays - i;
+        const cell = document.createElement('div');
+        cell.className = 'cal-day other-month';
+        cell.innerHTML = `<div class="date-num">${d}</div>`;
+        datesGrid.appendChild(cell);
+      }
+      
+      // current month
+      for(let d=1; d<=daysInMonth; ++d){
+        const date = new Date(y,m,d);
+        // Fix timezone issue by comparing date strings
+        const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD
+        
+        const dayEvents = allEvents.filter(ev => {
+            if (!ev.date) return false;
+            // Ensure we compare YYYY-MM-DD parts
+            return ev.date.startsWith(dateStr);
+        });
+
+        const cell = document.createElement('div');
+        cell.className = 'cal-day';
+        let dots = '';
+        if (dayEvents.length) {
+          const colors = dayEvents.slice(0,3).map(ev => ev.isOnline ? '#10b981' : '#2563eb');
+          dots = '<div style="margin-top:6px;">' + colors.map(c=>`<span class="dot" style="background:${c}"></span>`).join('') + '</div>';
+        }
+        cell.innerHTML = `<div><span class="date-num">${d}</span>${dots}</div>`;
+        cell.addEventListener('click', ()=> showEventsFor(date));
+        datesGrid.appendChild(cell);
+      }
+      // next month head to fill grid (optional)
+      const totalCells = datesGrid.children.length;
+      const toFill = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+      for(let i=1;i<=toFill;i++){
+        const cell = document.createElement('div');
+        cell.className = 'cal-day other-month';
+        cell.innerHTML = `<div class="date-num">${i}</div>`;
+        datesGrid.appendChild(cell);
+      }
+    }
+
+    function showEventsFor(date){
+      const dateStr = date.toLocaleDateString('en-CA');
+      selectedDateLabel.textContent = date.toLocaleDateString();
+      
+      const dayEvents = allEvents.filter(ev => {
+          if (!ev.date) return false;
+          return ev.date.startsWith(dateStr);
+      });
+
+      if (!dayEvents.length) {
+        eventsForDay.innerHTML = '<div class="muted">No events for this date.</div>';
+        return;
+      }
+      eventsForDay.innerHTML = dayEvents.map(ev => `
+        <div class="event-item">
+          <div style="width:10px;height:10px;border-radius:999px;background:${ev.isOnline?'#10b981':'#2563eb'}"></div>
+          <div style="flex:1;">
+            <div style="font-weight:700">${ev.title}</div>
+            <div class="muted" style="font-size:0.9rem;">${ev.time || ''} • ${ev.location || 'Online'}</div>
+          </div>
+          <div><a href="event-detail.html?id=${ev.id}" class="btn btn-outline">View</a></div>
+        </div>
+      `).join('');
+    }
+
+    prevMonthBtn.addEventListener('click', ()=> { viewMonth--; if (viewMonth<0){ viewMonth=11; viewYear--; } renderCalendar(viewYear, viewMonth); });
+    nextMonthBtn.addEventListener('click', ()=> { viewMonth++; if (viewMonth>11){ viewMonth=0; viewYear++; } renderCalendar(viewYear, viewMonth); });
+    todayBtn.addEventListener('click', ()=> { now=new Date(); viewYear=now.getFullYear(); viewMonth=now.getMonth(); renderCalendar(viewYear, viewMonth); });
+
+    // initial
+    loadAllEvents();
+  </script>
+</body>
+</html>

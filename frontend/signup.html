@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign up — Evinza</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .signup-wrap { max-width: 980px; margin: 3rem auto; display: grid; grid-template-columns: 1fr 420px; gap: 2rem; align-items:start; padding:1rem; }
+    .card { padding:1.25rem; border-radius:12px; background:white; }
+    .input { width:100%; padding:0.75rem 1rem; border-radius:8px; border:1px solid #e5e7eb; }
+    .muted { color:#6b7280; font-size:0.95rem; }
+    .otp { text-align:center; width:42px; font-size:1.2rem; padding:0.5rem; }
+
+    /* MOBILE FIXES */
+    @media (max-width:900px){
+      .signup-wrap{ grid-template-columns: 1fr; }
+      aside{ order:-1; }
+    }
+    @media (max-width:600px){
+      .card { padding:1rem; }
+      .signup-wrap { margin:1rem auto; }
+      .otp { width:38px; font-size:1rem; }
+      .nav-links { display:none; }
+      .mobile-menu-btn { display:block; }
+    }
+
+    /* MOBILE NAV MENU */
+    .mobile-menu-btn{
+      display:none;
+      background:none;
+      border:none;
+      font-size:1.7rem;
+      cursor:pointer;
+      padding:0.5rem;
+    }
+    #mobileMenu{ display:none; flex-direction:column; gap:1rem; background:white; padding:1rem; }
+    #mobileMenu a{ padding:0.75rem 0; font-size:1.1rem; border-bottom:1px solid #eee; }
+
+    @media(max-width:768px){
+      #mobileMenu{ width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo"><div class="logo-icon">👥</div><span>Evinza</span></a>
+
+      <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+
+      <div class="nav-links" id="mobileMenu">
+        <a href="login.html" class="nav-link">Login</a>
+        <a href="events.html" class="btn btn-outline">Browse events</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container signup-wrap">
+    <div class="card">
+      <h1 style="font-size:1.75rem; margin-bottom:0.25rem;">Create your account</h1>
+      <p class="muted">Sign up quickly with phone or email. We'll send a verification code.</p>
+
+      <div style="margin-top:1rem;">
+        <label class="muted">Full name</label>
+        <input id="nameInput" class="input" placeholder="Your full name">
+      </div>
+
+      <div style="display:flex; gap:0.75rem; margin-top:1rem; flex-wrap:wrap;">
+        <div style="flex:1; min-width:150px;">
+          <label class="muted">Phone</label>
+          <input id="phone" class="input" maxlength="10" placeholder="9876543210" inputmode="numeric">
+        </div>
+        <div style="flex:1; min-width:150px;">
+          <label class="muted">Email</label>
+          <input id="email" class="input" placeholder="you@example.com" type="email">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.75rem; margin-top:1rem; flex-wrap:wrap;">
+        <div style="flex:1; min-width:150px;">
+          <label class="muted">Password</label>
+          <input id="password" class="input" type="password" placeholder="Choose a password">
+        </div>
+        <div style="flex:1; min-width:150px;">
+          <label class="muted">Confirm</label>
+          <input id="password2" class="input" type="password" placeholder="Confirm password">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:.5rem; margin-top:1rem; flex-wrap:wrap;">
+        <button id="signupBtn" class="btn btn-primary" style="flex:1; min-width:160px;">Create account</button>
+        <a href="login.html" class="btn btn-outline" style="display:flex;align-items:center; min-width:160px;">Back to login</a>
+      </div>
+
+      <div id="verifyArea" style="margin-top:1rem; display:none;">
+        <p class="muted">Enter the 6-digit OTP we sent</p>
+        <div style="display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
+          <input maxlength="1" class="input otp" id="s1">
+          <input maxlength="1" class="input otp" id="s2">
+          <input maxlength="1" class="input otp" id="s3">
+          <input maxlength="1" class="input otp" id="s4">
+          <input maxlength="1" class="input otp" id="s5">
+          <input maxlength="1" class="input otp" id="s6">
+        </div>
+        <div style="display:flex; gap:.5rem; margin-top:0.75rem; flex-wrap:wrap;">
+          <button id="confirmSignup" class="btn btn-primary" style="flex:1; min-width:160px;">Verify & continue</button>
+          <button id="resendSignup" class="btn btn-outline" style="min-width:160px;">Resend</button>
+        </div>
+      </div>
+    </div>
+
+    <aside style="display:flex; flex-direction:column; gap:1rem;">
+      <div class="card">
+        <h3>Why join?</h3>
+        <ul style="color:#6b7280; margin-left:1rem;">
+          <li>Create & manage events</li>
+          <li>Save your favourite groups</li>
+          <li>Receive personalised recommendations</li>
+        </ul>
+      </div>
+      <!-- INTERESTS MULTI SELECT -->
+      <div style="margin-top:2rem; border-top:1px solid #eee; padding-top:1.5rem;">
+        <h3 style="margin-bottom:0.5rem; font-size:1.2rem;">Your Interests</h3>
+        <p class="muted">Select the areas you're passionate about.</p>
+        <div id="interestContainer" style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1rem;">
+          <div class="chip" data-value="Technology">Technology</div>
+          <div class="chip" data-value="Music">Music</div>
+          <div class="chip" data-value="Fitness">Fitness</div>
+          <div class="chip" data-value="Food">Food</div>
+          <div class="chip" data-value="Photography">Photography</div>
+          <div class="chip" data-value="Business">Business</div>
+          <div class="chip" data-value="Sports">Sports</div>
+        </div>
+      </div>
+    </aside>
+  
+
+      <!-- LOCATION FIELD -->
+      <div style="margin-top:1rem;">
+        <label class="muted">Location</label>
+        <input id="locationInput" class="input" placeholder="City, Country">
+      </div>
+
+      
+
+      <style>
+        .chip {
+          padding:0.55rem 0.9rem;
+          border-radius:20px;
+          background:#f5f5f5;
+          border:1px solid #ddd;
+          cursor:pointer;
+          transition:0.25s ease;
+          font-size:0.9rem;
+        }
+        .chip:hover { background:#eaeaea; }
+        .chip.active {
+          background:#2563eb;
+          color:white;
+          border-color:#2563eb;
+          transform:scale(1.05);
+          box-shadow:0 3px 8px rgba(0,0,0,0.15);
+        }
+        @media(max-width:600px){ .chip{ padding:0.45rem 0.75rem; font-size:0.85rem;} }
+      </style>
+
+      <!-- PASSWORD STRENGTH INDICATOR -->
+      <div id="strengthWrap" style="margin-top:0.5rem; display:none;">
+        <div id="strengthBar" style="height:6px; width:100%; background:#eee; border-radius:4px; overflow:hidden;">
+          <div id="strengthFill" style="height:100%; width:0; background:red;"></div>
+        </div>
+        <p id="strengthText" class="muted" style="margin-top:0.25rem;"></p>
+      </div>
+
+      <!-- CERTIFICATION UPLOAD -->
+      <div style="margin-top:1rem;">
+        <label class="muted">Upload Certifications (Optional)</label>
+        <input type="file" id="certUpload" class="input" multiple>
+      </div>
+
+      <!-- LINKEDIN CONNECTION -->
+      <div style="margin-top:1rem;">
+        <button class="btn btn-outline" onclick="connectLinkedIn()">🔗 Connect LinkedIn</button>
+      </div>
+
+</main>
+
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <script>
+    function toggleMenu(){
+      const m=document.getElementById('mobileMenu');
+      m.style.display = m.style.display==='flex'?'none':'flex';
+    }
+  
+
+// --- CHIP BUTTON INTERACTION ---
+const chips = document.querySelectorAll('.chip');
+chips.forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    chip.classList.toggle('active');
+  });
+});
+
+// --- PASSWORD STRENGTH CHECKER ---
+function checkStrength(pw){
+  let score = 0;
+  if(pw.length >= 6) score++;
+  if(/[A-Z]/.test(pw)) score++;
+  if(/[0-9]/.test(pw)) score++;
+  if(/[^A-Za-z0-9]/.test(pw)) score++;
+  return score;
+}
+
+password.addEventListener('input', ()=>{
+  const pw = password.value;
+  const wrap = document.getElementById('strengthWrap');
+  const fill = document.getElementById('strengthFill');
+  const txt = document.getElementById('strengthText');
+  wrap.style.display = pw ? 'block' : 'none';
+
+  const s = checkStrength(pw);
+  let width = ['25%','50%','75%','100%'][s-1] || '10%';
+  let color = ['red','orange','gold','green'][s-1] || 'red';
+  let label = ['Very weak','Weak','Medium','Strong'][s-1] || 'Very weak';
+
+  fill.style.width = width;
+  fill.style.background = color;
+  txt.textContent = label;
+});
+
+// --- SHOW / HIDE PASSWORD ---
+function togglePw(id){
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// --- LINKEDIN CONNECT SIMULATION ---
+function connectLinkedIn(){
+  localStorage.setItem('linkedinData', JSON.stringify({connected:true, profile:'linkedin.com/in/sampleuser'}));
+  t('LinkedIn connected (simulated)');
+}
+
+// --- CAPTURE EXTRA FIELDS ON FINAL SIGNUP ---
+confirmSignup.addEventListener('click', ()=>{
+  const typed = otpEls.map(i=>i.value).join('');
+  const stored = sessionStorage.getItem('signupOtp');
+  if (!stored) { t('No OTP requested'); return; }
+  if (typed === stored) {
+
+    const pending = JSON.parse(sessionStorage.getItem('pendingSignup')||'{}');
+
+    // NEW FIELDS
+    const locationInput = document.getElementById('locationInput').value.trim();
+    const interests = Array.from(document.querySelectorAll('.chip.active')).map(c=>c.dataset.value)(o=>o.value)(o=>o.value);
+    const certFiles = Array.from(document.getElementById('certUpload').files).map(f=>f.name);
+    const linked = JSON.parse(localStorage.getItem('linkedinData')||'{}');
+
+    const newUser = {
+      id: Date.now(),
+      name: pending.name,
+      email: pending.email||'',
+      phone: pending.phone||'',
+      avatar:'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200',
+      location: locationInput,
+      interests: interests,
+      certifications: certFiles,
+      linkedIn: linked || {connected:false}
+    };
+
+    localStorage.setItem('localUser', JSON.stringify(newUser));
+    t('Account created — logged in');
+    setTimeout(()=> location.href='index.html',800);
+  } else t('Incorrect OTP');
+});
+
+</script>
+
+  <script src="api.js"></script>
+  <script>
+    const t = (msg) => { const el=document.getElementById('toast'); el.textContent=msg; el.style.display='block'; setTimeout(()=>el.style.display='none',3000); };
+    
+    const nameInput = document.getElementById('nameInput');
+    const phone = document.getElementById('phone');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const password2 = document.getElementById('password2');
+    const signupBtn = document.getElementById('signupBtn');
+    const verifyArea = document.getElementById('verifyArea');
+    const otpEls = ['s1','s2','s3','s4','s5','s6'].map(id=>document.getElementById(id));
+    const confirmSignup = document.getElementById('confirmSignup');
+    const resendSignup = document.getElementById('resendSignup');
+
+    // Auto-focus next OTP input
+    otpEls.forEach((el, idx) => {
+      el.addEventListener('input', (e) => {
+        if(e.inputType === 'deleteContentBackward') return;
+        if(el.value.length === 1 && idx < otpEls.length - 1) otpEls[idx+1].focus();
+      });
+      el.addEventListener('keydown', (e) => {
+        if(e.key === 'Backspace' && !el.value && idx > 0) otpEls[idx-1].focus();
+      });
+    });
+
+    signupBtn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      const ph = phone.value.trim();
+      const em = email.value.trim();
+      const pw = password.value;
+      const pw2 = password2.value;
+
+      if (!name || !ph || !em || !pw) { t('Please fill all fields'); return; }
+      if (pw !== pw2) { t('Passwords do not match'); return; }
+
+      try {
+        await api.auth.signup({ name, email: em, password: pw, phone: ph });
+        t('OTP sent to email');
+        verifyArea.style.display = 'block';
+        // Hide form fields to avoid confusion? Or just scroll to OTP
+        verifyArea.scrollIntoView({ behavior: 'smooth' });
+      } catch (error) {
+        t(error.message);
+      }
+    });
+
+    confirmSignup.addEventListener('click', async () => {
+      const otp = otpEls.map(i => i.value).join('');
+      const em = email.value.trim();
+
+      if (otp.length !== 6) { t('Enter complete OTP'); return; }
+
+      try {
+        const data = await api.auth.verifySignup(em, otp);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        t('Signup successful!');
+        setTimeout(() => location.href = 'index.html', 1000);
+      } catch (error) {
+        t(error.message);
+      }
+    });
+  </script>

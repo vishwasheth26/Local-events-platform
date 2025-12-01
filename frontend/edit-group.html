@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Group</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .edit-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        .edit-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .edit-card input,
+        .edit-card textarea {
+            width: 100%;
+            margin: .5rem 0 1rem;
+            padding: .8rem;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+        }
+        .edit-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="groups.html" class="logo">
+            <div class="logo-icon">✏️</div>
+            <span>Local event platform</span>
+        </a>
+    </div>
+</nav>
+
+<div class="edit-container">
+    <div class="edit-card">
+
+        <h1 class="edit-title">Edit Group</h1>
+
+        <label>Group Name</label>
+        <input id="groupNameInput" type="text">
+
+        <label>Description</label>
+        <textarea id="groupDescInput" rows="4"></textarea>
+
+        <label>Location</label>
+        <input id="groupLocationInput" type="text">
+
+        <label>Image URL</label>
+        <input id="groupImageInput" type="text" placeholder="https://">
+
+        <div style="display:flex; gap:1rem; margin-top:1rem;">
+            <a href="javascript:history.back()" class="btn btn-outline">Cancel</a>
+            <button id="saveEditBtn" class="btn btn-primary">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<script src="mock-data.js"></script>
+<script>
+const storedKey = "customGroups";
+let storedGroups = JSON.parse(localStorage.getItem(storedKey)) || [];
+
+const params = new URLSearchParams(location.search);
+const id = Number(params.get("id"));
+
+let index = storedGroups.findIndex(g => g.id === id);
+
+if (index === -1) {
+    document.body.innerHTML = `
+        <main class="container" style="padding:2rem;">
+            <div class="card p-4 shadow-md">
+                <h2>This group cannot be edited.</h2>
+                <a href="groups.html" class="btn btn-primary" style="margin-top:1rem;">Back</a>
+            </div>
+        </main>`;
+    throw "Not editable";
+}
+
+let group = storedGroups[index];
+
+// Pre-fill fields
+groupNameInput.value = group.name;
+groupDescInput.value = group.description;
+groupLocationInput.value = group.location;
+groupImageInput.value = group.image;
+
+// Save edits
+saveEditBtn.onclick = () => {
+    storedGroups[index].name = groupNameInput.value.trim();
+    storedGroups[index].description = groupDescInput.value.trim();
+    storedGroups[index].location = groupLocationInput.value.trim();
+    storedGroups[index].image = groupImageInput.value.trim();
+
+    localStorage.setItem(storedKey, JSON.stringify(storedGroups));
+
+    window.location.href = `group-detail.html?id=${id}`;
+};
+</script>
+
+</body>
+</html>
