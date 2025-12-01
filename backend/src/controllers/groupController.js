@@ -43,8 +43,10 @@ exports.getGroups = async (req, res) => {
       limit,
       offset,
       include: [
-        { model: User, as: 'organizer', attributes: ['id', 'name', 'email'] }
+        { model: User, as: 'organizer', attributes: ['id', 'name', 'email'] },
+        { model: User, as: 'members', attributes: ['id'], through: { attributes: [] } }
       ],
+      distinct: true,
       order: [['createdAt', 'DESC']]
     });
 
@@ -64,7 +66,7 @@ exports.getGroupById = async (req, res) => {
     const group = await Group.findByPk(req.params.id, {
       include: [
         { model: User, as: 'organizer', attributes: ['id', 'name', 'email'] },
-        { model: User, as: 'members', attributes: ['id', 'name'], through: { attributes: ['role'] } }
+        { model: User, as: 'members', attributes: ['id', 'name'], through: { attributes: ['memberRole'] } }
       ]
     });
 

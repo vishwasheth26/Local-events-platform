@@ -1,165 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Discover Events - Evinza</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="logo"><div class="logo-icon">👥</div><span>Evinza</span></a>
-            <div class="nav-links">
-                <a href="events.html" class="nav-link active">📅 Events</a>
-                <a href="groups.html" class="nav-link">👥 Groups</a>
-                <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
-                <a href="create-event.html" class="btn btn-outline">+ Create Event</a>
-                <a href="profile.html" class="btn btn-primary">👤 Profile</a>
-            </div>
+      <div class="nav-container">
+        <a href="index.html" class="logo"
+          ><div class="logo-icon">👥</div>
+          <span>Evinza</span></a
+        >
+        <div class="nav-links">
+          <a href="events.html" class="nav-link active">📅 Events</a>
+          <a href="groups.html" class="nav-link">👥 Groups</a>
+          <a href="calendar.html" class="nav-link">🗓️ Calendar</a>
+          <a href="create-event.html" class="btn btn-outline">+ Create Event</a>
+          <span id="authArea">
+            <a href="login.html" class="btn btn-primary">👤 Login</a>
+          </span>
         </div>
+      </div>
     </nav>
 
-    <div style="background: white; border-bottom: 1px solid #e5e7eb; padding: 2rem 1rem;">
-        <div class="container">
-            <h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem;">Discover events</h1>
-            <p style="margin-bottom: 1.5rem; color: #6b7280;"><strong id="eventCount">0</strong> events found</p>
+    <div
+      style="
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 2rem 1rem;
+      "
+    >
+      <div class="container">
+        <h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem">
+          Discover events
+        </h1>
+        <p style="margin-bottom: 1.5rem; color: #6b7280">
+          <strong id="eventCount">0</strong> events found
+        </p>
+
+        <!-- Filters -->
+        <!-- Filters -->
+        <div class="filters-container">
+          <div class="filters-bar">
+            <div class="filter-group search-group">
+              <span class="filter-icon">🔍</span>
+              <input
+                id="searchInput"
+                class="filter-input"
+                placeholder="Search events..."
+              />
+            </div>
             
-            <!-- Filters -->
-            <div class="filters-bar" style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
-                <input id="searchInput" class="input" placeholder="Search events..." style="max-width:200px;">
-                <select id="categoryFilter" class="input" style="width:auto;">
-                    <option value="all">All Categories</option>
-                </select>
-                <select id="typeFilter" class="input" style="width:auto;">
-                    <option value="all">Any Type</option>
-                    <option value="online">Online</option>
-                    <option value="offline">In Person</option>
-                </select>
-                <input id="locationFilter" class="input" placeholder="Location" style="max-width:150px;">
-                <input id="startDate" class="input" type="date" style="width:auto;">
-                <input id="endDate" class="input" type="date" style="width:auto;">
-                <input id="minPrice" class="input" type="number" placeholder="Min $" style="width:80px;">
-                <input id="maxPrice" class="input" type="number" placeholder="Max $" style="width:80px;">
-                <select id="sortBy" class="input" style="width:auto;">
-                    <option value="date_asc">Date (Soonest)</option>
-                    <option value="date_desc">Date (Latest)</option>
-                    <option value="price_asc">Price (Low to High)</option>
-                    <option value="price_desc">Price (High to Low)</option>
-                </select>
-                <button id="applyFilters" class="btn btn-primary">Apply</button>
-                <button id="resetFilters" class="btn btn-outline">Reset</button>
+            <div class="filter-group">
+              <select id="categoryFilter" class="filter-select">
+                <option value="all">All Categories</option>
+              </select>
             </div>
 
-            <div class="grid grid-2" id="eventsGrid"></div>
+            <div class="filter-group">
+              <select id="typeFilter" class="filter-select">
+                <option value="all">Any Type</option>
+                <option value="online">Online</option>
+                <option value="offline">In Person</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <input
+                id="locationFilter"
+                class="filter-input"
+                placeholder="Location"
+              />
+            </div>
+
+            <div class="filter-group date-group">
+              <label for="startDate" class="filter-label">From</label>
+              <input id="startDate" class="filter-input date-input" type="date" />
+            </div>
+
+            <div class="filter-group date-group">
+              <label for="endDate" class="filter-label">To</label>
+              <input id="endDate" class="filter-input date-input" type="date" />
+            </div>
+
+            <div class="filter-group price-group">
+              <input
+                id="minPrice"
+                class="filter-input price-input"
+                type="number"
+                placeholder="Min $"
+              />
+              <span class="separator">-</span>
+              <input
+                id="maxPrice"
+                class="filter-input price-input"
+                type="number"
+                placeholder="Max $"
+              />
+            </div>
+
+            <div class="filter-group">
+              <select id="sortBy" class="filter-select">
+                <option value="date_asc">Date (Soonest)</option>
+                <option value="date_desc">Date (Latest)</option>
+                <option value="price_asc">Price (Low to High)</option>
+                <option value="price_desc">Price (High to Low)</option>
+              </select>
+            </div>
+
+            <div class="filter-actions">
+              <button id="applyFilters" class="btn btn-primary">Apply</button>
+              <button id="resetFilters" class="btn btn-outline">Reset</button>
+            </div>
+          </div>
         </div>
+
+        <div class="grid grid-2" id="eventsGrid"></div>
+      </div>
     </div>
 
     <script src="api.js"></script>
     <script>
-        const categoryFilter = document.getElementById('categoryFilter');
-        const startDate = document.getElementById('startDate');
-        const endDate = document.getElementById('endDate');
-        const minPrice = document.getElementById('minPrice');
-        const maxPrice = document.getElementById('maxPrice');
-        const locationFilter = document.getElementById('locationFilter');
-        const typeFilter = document.getElementById('typeFilter');
-        const sortBy = document.getElementById('sortBy');
-        const searchInput = document.getElementById('searchInput');
-        const eventsGrid = document.getElementById('eventsGrid');
-        const eventCount = document.getElementById('eventCount');
-        const applyFiltersBtn = document.getElementById('applyFilters');
-        const resetFiltersBtn = document.getElementById('resetFilters');
+      const categoryFilter = document.getElementById("categoryFilter");
+      const startDate = document.getElementById("startDate");
+      const endDate = document.getElementById("endDate");
+      const minPrice = document.getElementById("minPrice");
+      const maxPrice = document.getElementById("maxPrice");
+      const locationFilter = document.getElementById("locationFilter");
+      const typeFilter = document.getElementById("typeFilter");
+      const sortBy = document.getElementById("sortBy");
+      const searchInput = document.getElementById("searchInput");
+      const eventsGrid = document.getElementById("eventsGrid");
+      const eventCount = document.getElementById("eventCount");
+      const applyFiltersBtn = document.getElementById("applyFilters");
+      const resetFiltersBtn = document.getElementById("resetFilters");
 
-        // Populate categories
-        const categories = [
-          {name:'Technology'}, {name:'Music'}, {name:'Business'}, {name:'Health'}, {name:'Food'}, {name:'Art'}, {name:'Sports'}
-        ];
-        if (categoryFilter) {
-            categories.forEach(cat => {
-                categoryFilter.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-            });
-        }
+      // Populate categories
+      const categories = [
+        { name: "Technology" },
+        { name: "Music" },
+        { name: "Business" },
+        { name: "Health" },
+        { name: "Food" },
+        { name: "Art" },
+        { name: "Sports" },
+      ];
+      if (categoryFilter) {
+        categories.forEach((cat) => {
+          categoryFilter.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+        });
+      }
 
-        async function fetchEvents() {
-            const params = new URLSearchParams();
-            
-            if (categoryFilter.value !== 'all') params.append('category', categoryFilter.value);
-            if (searchInput.value) params.append('search', searchInput.value);
-            if (startDate.value) params.append('startDate', startDate.value);
-            if (endDate.value) params.append('endDate', endDate.value);
-            if (minPrice.value) params.append('minPrice', minPrice.value);
-            if (maxPrice.value) params.append('maxPrice', maxPrice.value);
-            if (locationFilter.value) params.append('location', locationFilter.value);
-            
-            if (typeFilter.value === 'online') params.append('isOnline', 'true');
-            if (typeFilter.value === 'offline') params.append('isOnline', 'false');
-            
-            params.append('sortBy', sortBy.value);
+      async function fetchEvents() {
+        const params = new URLSearchParams();
 
-            try {
-                const response = await api.events.getAll(`?${params.toString()}`);
-                const events = response.events || response;
-                renderEvents(events);
-            } catch (error) {
-                console.error("Failed to fetch events", error);
-                eventsGrid.innerHTML = '<p>Error loading events from server.</p>';
-            }
-        }
+        if (categoryFilter.value !== "all")
+          params.append("category", categoryFilter.value);
+        if (searchInput.value) params.append("search", searchInput.value);
+        if (startDate.value) params.append("startDate", startDate.value);
+        if (endDate.value) params.append("endDate", endDate.value);
+        if (minPrice.value) params.append("minPrice", minPrice.value);
+        if (maxPrice.value) params.append("maxPrice", maxPrice.value);
+        if (locationFilter.value)
+          params.append("location", locationFilter.value);
 
-        function renderEvents(events) {
+        if (typeFilter.value === "online") params.append("isOnline", "true");
+        if (typeFilter.value === "offline") params.append("isOnline", "false");
+
+        try {
+            const response = await api.events.getAll(`?${params.toString()}`);
+            const events = response.events || [];
             eventCount.textContent = events.length;
-            
+
             if (events.length === 0) {
-                eventsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #6b7280;">No events found matching your filters.</div>';
-                return;
+              eventsGrid.innerHTML =
+                '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #6b7280;">No events found matching your filters.</div>';
+              return;
             }
 
-            eventsGrid.innerHTML = events.map(event => `
-                <a href="event-detail.html?id=${event.id}" class="card">
-                    <div style="position: relative;">
-                        <img src="${event.image || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800'}" class="card-image">
-                        <span class="badge">${event.price > 0 ? '$'+event.price : 'Free'}</span>
-                        ${event.isOnline ? '<span class="badge" style="left: 0.75rem; right: auto; background: #10b981; color: white;">Online</span>' : ''}
-                    </div>
-                    <div class="card-content">
-                        <div class="card-category">${event.category || 'Uncategorized'}</div>
-                        <h3 class="card-title">${event.title}</h3>
-                        <div class="card-info">
-                            <div class="info-item">📅 ${event.date ? new Date(event.date).toLocaleDateString() : '—'}</div>
-                            <div class="info-item">⏰ ${event.time || "—"}</div>
-                            <div class="info-item">📍 ${event.isOnline ? "Online" : event.location || '—'}</div>
-                            <div class="info-item">👥 ${event.attendees || 0}/${event.maxAttendees || 50} attending</div>
+            eventsGrid.innerHTML = events
+              .map(
+                (event) => `
+                    <a href="event-detail.html?id=${event.id}" class="card">
+                        <div style="position: relative;">
+                            <img src="${
+                              event.image ||
+                              "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800"
+                            }" class="card-image">
+                            <span class="badge">${
+                              event.price > 0 ? "$" + event.price : "Free"
+                            }</span>
+                            ${
+                              event.isOnline
+                                ? '<span class="badge" style="left: 0.75rem; right: auto; background: #10b981; color: white;">Online</span>'
+                                : ""
+                            }
                         </div>
-                    </div>
-                </a>
-            `).join('');
+                        <div class="card-content">
+                            <div class="card-category">${
+                              event.category || "Uncategorized"
+                            }</div>
+                            <h3 class="card-title">${event.title}</h3>
+                            <div class="card-info">
+                                <div class="info-item">📅 ${
+                                  event.date
+                                    ? new Date(event.date).toLocaleDateString()
+                                    : "—"
+                                }</div>
+                                <div class="info-item">⏰ ${event.time || "—"}</div>
+                                <div class="info-item">📍 ${
+                                  event.isOnline ? "Online" : event.location || "—"
+                                }</div>
+                                <div class="info-item">👥 ${(event.attendees || []).length}/${
+                  event.maxAttendees || 50
+                } attending</div>
+                            </div>
+                        </div>
+                    </a>
+                `
+              )
+              .join("");
+        } catch (error) {
+            console.error("Failed to fetch events", error);
+            eventsGrid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #ef4444; background: #fef2f2; border-radius: 8px;">
+                    <p style="font-weight: bold;">Error loading events</p>
+                    <p style="font-size: 0.875rem;">${error.message || 'Could not connect to server'}</p>
+                    <button onclick="fetchEvents()" class="btn btn-outline" style="margin-top: 1rem;">Try Again</button>
+                </div>
+            `;
         }
+      }
 
-        // Event Listeners
-        applyFiltersBtn.addEventListener('click', fetchEvents);
-        
-        resetFiltersBtn.addEventListener('click', () => {
-            categoryFilter.value = 'all';
-            startDate.value = '';
-            endDate.value = '';
-            minPrice.value = '';
-            maxPrice.value = '';
-            locationFilter.value = '';
-            typeFilter.value = 'all';
-            sortBy.value = 'date_asc';
-            searchInput.value = '';
-            fetchEvents();
-        });
+      // Event Listeners
+      applyFiltersBtn.addEventListener("click", fetchEvents);
 
-        searchInput.addEventListener('input', () => {
-            // Debounce could be added here
-            fetchEvents(); // For now, simple input listener
-        });
-
-        // Initial load
+      resetFiltersBtn.addEventListener("click", () => {
+        categoryFilter.value = "all";
+        startDate.value = "";
+        endDate.value = "";
+        minPrice.value = "";
+        maxPrice.value = "";
+        locationFilter.value = "";
+        typeFilter.value = "all";
+        sortBy.value = "date_asc";
+        searchInput.value = "";
         fetchEvents();
+      });
 
+      searchInput.addEventListener("input", () => {
+        // Debounce could be added here
+        fetchEvents(); // For now, simple input listener
+      });
+
+      // Check auth for navbar
+      const token = localStorage.getItem('token');
+      if (token) {
+          const authArea = document.getElementById('authArea');
+          if(authArea) {
+               authArea.innerHTML = `
+                <a href="profile.html" class="btn btn-primary">👤 Profile</a>
+              `;
+          }
+      }
+
+      // Initial load
+      fetchEvents();
     </script>
-</body>
+  </body>
 </html>

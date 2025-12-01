@@ -165,6 +165,13 @@
             } catch (error) {
                 console.error(error);
                 t('Failed to load groups');
+                groupsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #ef4444; background: #fef2f2; border-radius: 8px;">
+                        <p style="font-weight: bold;">Error loading groups</p>
+                        <p style="font-size: 0.875rem;">${error.message || 'Could not connect to server'}</p>
+                        <button onclick="fetchGroups()" class="btn btn-outline" style="margin-top: 1rem;">Try Again</button>
+                    </div>
+                `;
             }
         }
 

@@ -91,8 +91,10 @@ exports.getEvents = async (req, res) => {
       limit,
       offset,
       include: [
-        { model: User, as: 'organizer', attributes: ['id', 'name', 'email'] }
+        { model: User, as: 'organizer', attributes: ['id', 'name', 'email'] },
+        { model: User, as: 'attendees', attributes: ['id'], through: { attributes: [] } }
       ],
+      distinct: true, // Important for correct count with many-to-many
       order
     });
 

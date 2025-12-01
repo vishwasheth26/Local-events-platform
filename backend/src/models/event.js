@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class Event extends Model {
     static associate(models) {
       Event.belongsTo(models.User, { foreignKey: 'organizerId', as: 'organizer' });
-      Event.belongsToMany(models.User, { through: 'RSVPs', as: 'attendees', foreignKey: 'eventId' });
+      Event.belongsToMany(models.User, { through: models.RSVP, as: 'attendees', foreignKey: 'eventId' });
     }
   }
   Event.init({
